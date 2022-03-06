@@ -6,8 +6,23 @@
   <meta charset="utf-8">
   <script src="options.js"></script>
 
-  <!-- Align by using css tables: https://stackoverflow.com/a/23741073/7410886 -->
   <style>
+    /* https://medium.com/hypersphere-codes/detecting-system-theme-in-javascript-css-react-f6b961916d48 */
+    @media (prefers-color-scheme: light) {
+      body {
+        background: #FFF;
+        color: #333;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #333;
+        color: #FFF;
+      }
+    }
+
+    /* Align by using css tables: https://stackoverflow.com/a/23741073/7410886 */
     fieldset {
       display: table;
     }
@@ -26,11 +41,7 @@
     }
 
     /* https://stackoverflow.com/a/42391523/7410886 */
-    input:not([type="checkbox"]) {
-      display: table-cell;
-      width: 100%;
-    }
-
+    input:not([type="checkbox"]),
     select {
       display: table-cell;
       width: 100%;
