@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <script src="options.js"></script>
+
+  <!-- Align by using css tables: https://stackoverflow.com/a/23741073/7410886 -->
+  <style>
+    fieldset {
+      display: table;
+    }
+
+    p {
+      display: table-row;
+    }
+
+    label {
+      display: table-cell;
+      padding-right: 10px;
+    }
+
+    input[type="checkbox"] {
+      display: table-cell;
+    }
+
+    /* https://stackoverflow.com/a/42391523/7410886 */
+    input:not([type="checkbox"]) {
+      display: table-cell;
+      width: 100%;
+    }
+
+    select {
+      display: table-cell;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+
+  <fieldset>
+    <legend>Joplin Webclipper Configuration</legend>
+    <p>
+      <label for="joplinScheme">Scheme:</label>
+      <input id="joplinScheme" type="string" />
+    </p>
+    <p>
+      <label for="joplinHost">Host:</label>
+      <input id="joplinHost" type="string" />
+    </p>
+    <p>
+      <label for="joplinPort">Port:</label>
+      <input id="joplinPort" type="number" />
+    </p>
+    <p>
+      <label for="joplinToken">Token:</label>
+      <input id="joplinToken" type="string" />
+    </p>
+    <p>
+      <label for="joplinUrl">URL:</label>
+      <input id="joplinUrl" type="string" disabled />
+    </p>
+    <p>
+      <label for="joplinStatus">Status:</label>
+      <input id="joplinStatus" type="string" disabled />
+    </p>
+  </fieldset>
+
+  <fieldset>
+    <!-- https://addons.thunderbird.net/de/thunderbird/addon/enforward/ -->
+    <legend>Note</legend>
+    <p>
+      <label for="joplinNoteTitle">Title:</label>
+      <input id="joplinNoteTitle" type="string" />
+    </p>
+    <p>
+      <label for="joplinNoteParentFolder">Parent folder:</label>
+      <select name="joplinNoteParentFolder" id="joplinNoteParentFolder">
+        <!-- 
+        Will be filled by "options.js":
+        <option value="notebook_id">Notebook Name</option>
+         -->
+      </select>
+      <button type="button" id="btnRefreshNotebooks">Refresh</button>
+    </p>
+    <p>
+      <label for="joplinNoteFormat">Format:</label>
+      <select name="joplinNoteFormat" id="joplinNoteFormat">
+        <option value="text/html">HTML</option>
+        <option value="text/plain">Plaintext</option>
+      </select>
+    </p>
+    <p>
+      <label for="joplinNoteTags">Tags:</label>
+      <input id="joplinNoteTags" type="string" />
+    </p>
+    <p>
+      <label></label>
+      <input id="joplinNoteTagsFromEmail" type="checkbox" style="width:none;" />
+      Include Tags from Email
+    </p>
+    <p>
+      <label>Attachments:</label>
+      <select name="joplinAttachments" id="joplinAttachments">
+        <option value="ignore">Ignore</option>
+        <!-- <option value="attach">Attach</option> -->
+      </select>
+    </p>
+  </fieldset>
+
+  <p><button type="button" id="btnSave">Save</button></p>
+
+</body>
+
+</html>
