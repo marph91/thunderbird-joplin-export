@@ -6,6 +6,8 @@ const default_map = {
     "ac6882d828b99b9e72a418a11285edf06315d3a3cdc5340ee49df2380ac59adf9199f41fb8bc08f62e21d6308e11402d148c8f2ab57053f7145947df2700ce7e",
   joplinNoteFormat: "text/html",
   joplinAttachments: "ignore",
+  joplinNoteTags: "email",
+  joplinNoteTagsFromEmail: false,
 };
 
 async function checkJoplinConnection(baseUrl, apiToken) {
@@ -71,9 +73,14 @@ async function displayUrl() {
 
 async function savePrefs() {
   for (setting in default_map) {
-    browser.storage.local.set({
-      [`${setting}`]: document.getElementById(`${setting}`).value,
-    });
+    const element = document.getElementById(`${setting}`);
+    let value;
+    if (element.type === "checkbox") {
+      value = element.checked;
+    } else {
+      value = element.value;
+    }
+    browser.storage.local.set({ [`${setting}`]: value });
   }
 
   await displayUrl();
@@ -146,8 +153,13 @@ async function initOptions() {
 
   // Set values of the UI
   for (setting in default_map) {
-    console.log(setting, await getSetting(setting));
-    document.getElementById(`${setting}`).value = await getSetting(setting);
+    const element = document.getElementById(`${setting}`);
+    const value = await getSetting(setting);
+    if (element.type === "checkbox") {
+      element.checked = value;
+    } else {
+      element.value = value;
+    }
   }
 
   await displayUrl();
