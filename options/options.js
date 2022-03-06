@@ -73,14 +73,14 @@ async function displayUrl() {
 
 async function savePrefs() {
   for (setting in default_map) {
-    const element = document.getElementById(`${setting}`);
+    const element = document.getElementById(setting);
     let value;
     if (element.type === "checkbox") {
       value = element.checked;
     } else {
       value = element.value;
     }
-    browser.storage.local.set({ [`${setting}`]: value });
+    browser.storage.local.set({ [setting]: value });
   }
 
   await displayUrl();
@@ -153,7 +153,7 @@ async function initOptions() {
 
   // Set values of the UI
   for (setting in default_map) {
-    const element = document.getElementById(`${setting}`);
+    const element = document.getElementById(setting);
     const value = await getSetting(setting);
     if (element.type === "checkbox") {
       element.checked = value;
