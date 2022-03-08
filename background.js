@@ -19,7 +19,7 @@ async function handleJoplinButton(tab, info) {
     (await browser.storage.local.get("joplinPort")).joplinPort;
 
   //////////////////////////////////////////////////
-  // Header, including subject, author and tags
+  // Mail content
   //////////////////////////////////////////////////
 
   // https://webextension-api.thunderbird.net/en/91/messages.html#messages-messageheader
@@ -67,25 +67,55 @@ async function handleJoplinButton(tab, info) {
   // https://javascript.info/fetch
   response = await fetch(url, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  let noteInfo = await response.json();
-  console.log(noteInfo["id"]);
+  const noteInfo = await response.json();
 
   //////////////////////////////////////////////////
   // Tags
   //////////////////////////////////////////////////
-  // TODO
-  //console.log(mailHeader.tags)
-  //for (let tag of mailHeader.tags) {
-  //  // create tag
-  //
-  //  // attach tag to note
-  //
-  //}
+
+  // User specified tags are stored in a comma separated string.
+  const userTagsString = await getSetting("joplinNoteTags");
+  const userTags = userTagsString.split(",");
+
+  for (tag of userTags.concat(mailHeader.tags)) {
+    // Check whether tag exists already
+    url = `${baseUrl}/search?query=${tag}&type=tag&token=${apiToken}`;
+    data = { title: tag };
+    response = await fetch(url);
+    const searchResult = await response.json();
+    const matchingTags = searchResult["items"];
+
+    let tagId;
+    if (matchingTags.length === 0) {
+      // create new tag
+      url = `${baseUrl}/tags?token=${apiToken}`;
+      data = { title: tag };
+      response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const tagInfo = await response.json();
+      tagId = tagInfo["id"];
+    } else if (matchingTags.length === 1) {
+      // use id of the existing tag
+      tagId = matchingTags[0]["id"];
+    } else {
+      throw new Error(`Too many matching tags "${matchingTags}" for "${tag}"`);
+    }
+
+    // attach tag to note
+    url = `${baseUrl}/tags/${tagId}/notes?token=${apiToken}`;
+    data = { id: noteInfo["id"] };
+    response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  }
 
   //////////////////////////////////////////////////
   // Attachments
