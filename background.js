@@ -56,7 +56,7 @@ async function handleJoplinButton(tab, info) {
   }
 
   // Add a note with the email content
-  url = `${baseUrl}/notes?token=${apiToken}`;
+  url = `${baseUrl}/notes?fields=id,body&token=${apiToken}`;
   let data = {
     title: mailHeader.subject + " from " + mailHeader.author,
     parent_id: (await getSetting("joplinNoteParentFolder")) || "",
@@ -129,11 +129,39 @@ async function handleJoplinButton(tab, info) {
   // Attachments
   //////////////////////////////////////////////////
 
-  // listAttachments
-  // getAttachmentFile
   // https://webextension-api.thunderbird.net/en/latest/messages.html#getattachmentfile-messageid-partname
-  // let attachments = await browser.messages.listAttachments(mailHeader.id);
-  // console.log(attachments);
+  const attachments = await browser.messages.listAttachments(mailHeader.id);
+  let attachmentString = "\n\n**Attachments**: ";
+  for (attachment of attachments) {
+    const attachmentFile = await browser.messages.getAttachmentFile(
+      mailHeader.id,
+      attachment.partName
+    );
+
+    const formData = new FormData();
+    formData.append("data", attachmentFile);
+    formData.append("props", JSON.stringify({ title: attachment.name }));
+    // https://joplinapp.org/api/references/rest_api/#post-resources
+    url = `${baseUrl}/resources?token=${apiToken}`;
+    response = await fetch(url, {
+      method: "POST",
+      body: formData,
+    });
+    const resourceInfo = await response.json();
+    attachmentString += `\n[${attachment.name}](:/${resourceInfo["id"]})`;
+  }
+
+  // Always operate on body, even if previously used body_html.
+  // TODO: Check is this has side effects.
+  url = `${baseUrl}/notes/${noteInfo["id"]}?&token=${apiToken}`;
+  response = await fetch(url, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ body: noteInfo["body"] + attachmentString }),
+  });
+  if (!response.ok) {
+    console.log(await response.text());
+  }
 }
 
 browser.messageDisplayAction.onClicked.addListener(handleJoplinButton);
