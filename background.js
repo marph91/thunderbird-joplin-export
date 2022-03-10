@@ -47,8 +47,11 @@ async function handleJoplinButton(tab, info) {
 
   const mailObject = await browser.messages.getFull(mailHeader.id);
   const contentType = await getSetting("joplinNoteFormat");
-  const mailBody = getMailContent(mailObject, contentType);
-  if (!mailBody) {
+
+  // text/html and text/plain seem to be the only used MIME types for the body.
+  const mailBodyHtml = getMailContent(mailObject, "text/html");
+  const mailBodyPlain = getMailContent(mailObject, "text/plain");
+  if (!mailBodyHtml && !mailBodyPlain) {
     throw new Error("Mail body is empty");
   }
 
@@ -58,10 +61,15 @@ async function handleJoplinButton(tab, info) {
     title: mailHeader.subject + " from " + mailHeader.author,
     parent_id: (await getSetting("joplinNoteParentFolder")) || "",
   };
-  if (contentType === "text/html") {
-    data["body_html"] = mailBody;
-  } else if (contentType === "text/plain") {
-    data["body"] = mailBody;
+
+  // If the preferred content type doesn't contain data, fall back to the other content type.
+  if ((contentType === "text/html" && mailBodyHtml) || !mailBodyPlain) {
+    console.log("Sending data in HTML format.");
+    data["body_html"] = mailBodyHtml;
+  }
+  if ((contentType === "text/plain" && mailBodyPlain) || !mailBodyHtml) {
+    console.log("Sending data in plain format.");
+    data["body"] = mailBodyPlain;
   }
 
   // https://javascript.info/fetch
