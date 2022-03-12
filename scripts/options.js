@@ -1,3 +1,5 @@
+const common = require("./common");
+
 const default_map = {
   joplinScheme: "http",
   joplinHost: "127.0.0.1",
@@ -47,7 +49,7 @@ async function checkJoplinConnection(baseUrl, apiToken) {
 
 async function updateConnectionStatus() {
   const baseUrl = document.getElementById("joplinUrl").value;
-  const apiToken = await getSetting("joplinToken");
+  const apiToken = await common.getSetting("joplinToken");
 
   let connectionStatus = document.getElementById("joplinStatus");
   const { working, message } = await checkJoplinConnection(baseUrl, apiToken);
@@ -97,14 +99,9 @@ async function savePrefs() {
   });
 }
 
-async function getSetting(name) {
-  // Convenience wrapper to get a setting from local storage.
-  return (await browser.storage.local.get(name))[name];
-}
-
 async function refreshNotebooks() {
   const baseUrl = document.getElementById("joplinUrl").value;
-  const apiToken = await getSetting("joplinToken");
+  const apiToken = await common.getSetting("joplinToken");
 
   // https://stackoverflow.com/a/8674667/7410886
   function fillNotebookSelect(tree, select, indentationLevel = 0) {
@@ -134,7 +131,7 @@ async function refreshNotebooks() {
   fillNotebookSelect(notebookTree, notebookSelect);
 
   // Set notebook if possible
-  const parentFolderId = await getSetting("joplinNoteParentFolder");
+  const parentFolderId = await common.getSetting("joplinNoteParentFolder");
   if (parentFolderId) {
     notebookSelect.value = parentFolderId;
   }
@@ -147,14 +144,14 @@ async function initOptions() {
   // Try to obtain the settings from local storage. If not possible, fall back to the defaults.
   for (setting in default_map) {
     await browser.storage.local.set({
-      [setting]: (await getSetting(setting)) || default_map[setting],
+      [setting]: (await common.getSetting(setting)) || default_map[setting],
     });
   }
 
   // Set values of the UI
   for (setting in default_map) {
     const element = document.getElementById(setting);
-    const value = await getSetting(setting);
+    const value = await common.getSetting(setting);
     if (element.type === "checkbox") {
       element.checked = value;
     } else {

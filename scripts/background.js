@@ -1,7 +1,4 @@
-async function getSetting(name) {
-  // Convenience wrapper to get a setting from local storage.
-  return (await browser.storage.local.get(name))[name];
-}
+const common = require("./common");
 
 async function handleJoplinButton(tab, info) {
   // Check for joplin api token. If it isn't present, we can skip everything else.
@@ -46,7 +43,7 @@ async function handleJoplinButton(tab, info) {
   }
 
   const mailObject = await browser.messages.getFull(mailHeader.id);
-  const contentType = await getSetting("joplinNoteFormat");
+  const contentType = await common.getSetting("joplinNoteFormat");
 
   // text/html and text/plain seem to be the only used MIME types for the body.
   const mailBodyHtml = getMailContent(mailObject, "text/html");
@@ -59,7 +56,7 @@ async function handleJoplinButton(tab, info) {
   url = `${baseUrl}/notes?fields=id,body&token=${apiToken}`;
   let data = {
     title: mailHeader.subject + " from " + mailHeader.author,
-    parent_id: (await getSetting("joplinNoteParentFolder")) || "",
+    parent_id: (await common.getSetting("joplinNoteParentFolder")) || "",
   };
 
   // If the preferred content type doesn't contain data, fall back to the other content type.
@@ -85,7 +82,7 @@ async function handleJoplinButton(tab, info) {
   //////////////////////////////////////////////////
 
   // User specified tags are stored in a comma separated string.
-  const userTagsString = await getSetting("joplinNoteTags");
+  const userTagsString = await common.getSetting("joplinNoteTags");
   const userTags = userTagsString.split(",");
 
   for (tag of userTags.concat(mailHeader.tags)) {

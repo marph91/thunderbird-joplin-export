@@ -2,3 +2,7 @@ node_modules
 notes.txt
 *.xpi
 *.xcf
+package-lock.json
+
+# JS files are bundled by browserify. See "build_xpi.sh".
+static/*.js
