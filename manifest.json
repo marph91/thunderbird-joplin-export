@@ -17,7 +17,7 @@
   },
   "message_display_action": {
     "default_title": "Joplin Export",
-    "default_icon": "images/logo_96.png"
+    "default_icon": "images/logo_96_blue.png"
   },
   // https://developer.thunderbird.net/add-ons/updating/tb78#replacing-options
   // https://github.com/thundernest/sample-extensions/blob/77f79f986e6005c07008d974fa629e258dcceb80/managedStorage/manifest.json
@@ -26,7 +26,7 @@
   },
   "permissions": ["messagesRead", "storage"],
   "icons": {
-    "96": "images/logo_96.png"
+    "96": "images/logo_96_blue.png"
   },
   "default_locale": "en_US"
 }

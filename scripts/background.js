@@ -1,6 +1,10 @@
 const common = require("./common");
 
 async function handleJoplinButton(tab, info) {
+  // The icon will be red during transmission and if anything failed.
+  // webextension-api.thunderbird.net/en/latest/messageDisplayAction.html#seticon-details
+  browser.messageDisplayAction.setIcon({ path: "../images/logo_96_red.png" });
+
   // Check for joplin api token. If it isn't present, we can skip everything else.
   const apiToken = await common.getSetting("joplinToken");
   if (!apiToken) {
@@ -148,6 +152,9 @@ async function handleJoplinButton(tab, info) {
   if (!response.ok) {
     console.log(await response.text());
   }
+
+  // Only change back to blue if everything succeeded.
+  browser.messageDisplayAction.setIcon({ path: "../images/logo_96_blue.png" });
 }
 
 browser.messageDisplayAction.onClicked.addListener(handleJoplinButton);

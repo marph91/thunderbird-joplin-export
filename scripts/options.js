@@ -50,7 +50,7 @@ async function updateConnectionStatus() {
   let connectionStatus = document.getElementById("joplinStatus");
   const { working, message } = await checkJoplinConnection();
   if (working) {
-    connectionStatus.style.color = "green";
+    connectionStatus.style.color = "blue";
     connectionStatus.value = "working";
   } else {
     connectionStatus.style.color = "red";
