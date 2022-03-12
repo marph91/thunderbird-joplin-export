@@ -12,8 +12,8 @@ const default_map = {
   joplinNoteTagsFromEmail: false,
 };
 
-async function checkJoplinConnection(baseUrl, apiToken) {
-  let url = `${baseUrl}/ping?token=${apiToken}`;
+async function checkJoplinConnection() {
+  let url = await common.generateUrl("ping");
   let response;
   try {
     response = await fetch(url);
@@ -34,13 +34,12 @@ async function checkJoplinConnection(baseUrl, apiToken) {
   }
 
   // Ping doesn't care for the token, so we need to check another endpoint.
-  url = `${baseUrl}/folders?token=${apiToken}`;
+  url = await common.generateUrl("folders");
   response = await fetch(url);
-  let response_status = response.status;
-  if (response_status !== 200) {
+  if (!response.ok) {
     return {
       working: false,
-      message: `Unexpected http status "${response_status}". Please check that the configuration is correct.`,
+      message: `Unexpected http status "${response.status}". Please check that the configuration is correct.`,
     };
   }
 
@@ -48,11 +47,8 @@ async function checkJoplinConnection(baseUrl, apiToken) {
 }
 
 async function updateConnectionStatus() {
-  const baseUrl = document.getElementById("joplinUrl").value;
-  const apiToken = await common.getSetting("joplinToken");
-
   let connectionStatus = document.getElementById("joplinStatus");
-  const { working, message } = await checkJoplinConnection(baseUrl, apiToken);
+  const { working, message } = await checkJoplinConnection();
   if (working) {
     connectionStatus.style.color = "green";
     connectionStatus.value = "working";
@@ -100,9 +96,6 @@ async function savePrefs() {
 }
 
 async function refreshNotebooks() {
-  const baseUrl = document.getElementById("joplinUrl").value;
-  const apiToken = await common.getSetting("joplinToken");
-
   // https://stackoverflow.com/a/8674667/7410886
   function fillNotebookSelect(tree, select, indentationLevel = 0) {
     for (notebook of tree) {
@@ -117,7 +110,7 @@ async function refreshNotebooks() {
       }
     }
   }
-  const url = `${baseUrl}/folders?as_tree=1&token=${apiToken}`;
+  const url = await common.generateUrl("folders", ["as_tree=1"]);
   const response = await fetch(url);
   if (!response.ok) {
     return;

@@ -2,18 +2,10 @@ const common = require("./common");
 
 async function handleJoplinButton(tab, info) {
   // Check for joplin api token. If it isn't present, we can skip everything else.
-  const apiToken = (await browser.storage.local.get("joplinToken")).joplinToken;
+  const apiToken = await common.getSetting("joplinToken");
   if (!apiToken) {
-    // https://github.com/thundernest/sample-extensions/tree/77f79f986e6005c07008d974fa629e258dcceb80/managedStorage
     throw new Error("API token not set. Please specify it at the settings.");
   }
-
-  const baseUrl =
-    (await browser.storage.local.get("joplinScheme")).joplinScheme +
-    "://" +
-    (await browser.storage.local.get("joplinHost")).joplinHost +
-    ":" +
-    (await browser.storage.local.get("joplinPort")).joplinPort;
 
   //////////////////////////////////////////////////
   // Mail content
@@ -53,7 +45,6 @@ async function handleJoplinButton(tab, info) {
   }
 
   // Add a note with the email content
-  url = `${baseUrl}/notes?fields=id,body&token=${apiToken}`;
   let data = {
     title: mailHeader.subject + " from " + mailHeader.author,
     parent_id: (await common.getSetting("joplinNoteParentFolder")) || "",
@@ -70,6 +61,7 @@ async function handleJoplinButton(tab, info) {
   }
 
   // https://javascript.info/fetch
+  url = await common.generateUrl("notes", ["fields=id,body"]);
   response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -87,8 +79,7 @@ async function handleJoplinButton(tab, info) {
 
   for (tag of userTags.concat(mailHeader.tags)) {
     // Check whether tag exists already
-    url = `${baseUrl}/search?query=${tag}&type=tag&token=${apiToken}`;
-    data = { title: tag };
+    url = await common.generateUrl("search", [`query=${tag}`, "type=tag"]);
     response = await fetch(url);
     const searchResult = await response.json();
     const matchingTags = searchResult["items"];
@@ -96,12 +87,11 @@ async function handleJoplinButton(tab, info) {
     let tagId;
     if (matchingTags.length === 0) {
       // create new tag
-      url = `${baseUrl}/tags?token=${apiToken}`;
-      data = { title: tag };
+      url = await common.generateUrl("tags");
       response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ title: tag }),
       });
       const tagInfo = await response.json();
       tagId = tagInfo["id"];
@@ -113,12 +103,11 @@ async function handleJoplinButton(tab, info) {
     }
 
     // attach tag to note
-    url = `${baseUrl}/tags/${tagId}/notes?token=${apiToken}`;
-    data = { id: noteInfo["id"] };
+    url = await common.generateUrl(`tags/${tagId}/notes`);
     response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ id: noteInfo["id"] }),
     });
   }
 
@@ -139,7 +128,7 @@ async function handleJoplinButton(tab, info) {
     formData.append("data", attachmentFile);
     formData.append("props", JSON.stringify({ title: attachment.name }));
     // https://joplinapp.org/api/references/rest_api/#post-resources
-    url = `${baseUrl}/resources?token=${apiToken}`;
+    url = await common.generateUrl("resources");
     response = await fetch(url, {
       method: "POST",
       body: formData,
@@ -150,7 +139,7 @@ async function handleJoplinButton(tab, info) {
 
   // Always operate on body, even if previously used body_html.
   // TODO: Check is this has side effects.
-  url = `${baseUrl}/notes/${noteInfo["id"]}?&token=${apiToken}`;
+  url = await common.generateUrl(`notes/${noteInfo["id"]}`);
   response = await fetch(url, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
