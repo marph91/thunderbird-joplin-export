@@ -15,7 +15,7 @@
   "background": {
     "scripts": ["static/background.js"]
   },
-  "message_display_action": {
+  "browser_action": {
     "default_title": "Joplin Export",
     "default_icon": "images/logo_96_blue.png"
   },

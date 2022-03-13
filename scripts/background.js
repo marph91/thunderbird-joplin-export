@@ -3,7 +3,7 @@ const common = require("./common");
 async function handleJoplinButton(tab, info) {
   // The icon will be red during transmission and if anything failed.
   // webextension-api.thunderbird.net/en/latest/messageDisplayAction.html#seticon-details
-  browser.messageDisplayAction.setIcon({ path: "../images/logo_96_red.png" });
+  browser.browserAction.setIcon({ path: "../images/logo_96_red.png" });
 
   // Check for joplin api token. If it isn't present, we can skip everything else.
   const apiToken = await common.getSetting("joplinToken");
@@ -11,16 +11,21 @@ async function handleJoplinButton(tab, info) {
     throw new Error("API token not set. Please specify it at the settings.");
   }
 
+  const mailHeaders = await browser.messageDisplay.getDisplayedMessages(tab.id);
+  for (header of mailHeaders) {
+    await processMail(header);
+  }
+
+  // Only change back to blue if everything succeeded.
+  browser.browserAction.setIcon({ path: "../images/logo_96_blue.png" });
+}
+
+async function processMail(mailHeader) {
   //////////////////////////////////////////////////
   // Mail content
   //////////////////////////////////////////////////
 
   // https://webextension-api.thunderbird.net/en/91/messages.html#messages-messageheader
-  let tabs = await browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-  let mailHeader = await browser.messageDisplay.getDisplayedMessage(tabs[0].id);
   if (!mailHeader) {
     throw new Error("Mail header is empty");
   }
@@ -152,9 +157,6 @@ async function handleJoplinButton(tab, info) {
   if (!response.ok) {
     console.log(await response.text());
   }
-
-  // Only change back to blue if everything succeeded.
-  browser.messageDisplayAction.setIcon({ path: "../images/logo_96_blue.png" });
 }
 
-browser.messageDisplayAction.onClicked.addListener(handleJoplinButton);
+browser.browserAction.onClicked.addListener(handleJoplinButton);
