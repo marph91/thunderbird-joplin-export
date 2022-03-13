@@ -19,12 +19,17 @@ async function handleJoplinButton(tab, info) {
   }
 
   const mailHeaders = await browser.messageDisplay.getDisplayedMessages(tab.id);
-  for (header of mailHeaders) {
-    await processMail(header);
+  const results = await Promise.all(mailHeaders.map(processMail));
+  for (error of results) {
+    if (error) {
+      console.error(error);
+    }
   }
 
-  // Only change back to blue if everything succeeded.
-  browser.browserAction.setIcon({ path: "../images/logo_96_blue.png" });
+  if (results.every((error) => error == null)) {
+    // Only change back to blue if everything succeeded.
+    browser.browserAction.setIcon({ path: "../images/logo_96_blue.png" });
+  }
 }
 
 async function processMail(mailHeader) {
