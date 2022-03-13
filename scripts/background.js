@@ -126,36 +126,38 @@ async function processMail(mailHeader) {
 
   // https://webextension-api.thunderbird.net/en/latest/messages.html#getattachmentfile-messageid-partname
   const attachments = await browser.messages.listAttachments(mailHeader.id);
-  let attachmentString = "\n\n**Attachments**: ";
-  for (attachment of attachments) {
-    const attachmentFile = await browser.messages.getAttachmentFile(
-      mailHeader.id,
-      attachment.partName
-    );
+  if (attachments && attachments.length != 0) {
+    let attachmentString = "\n\n**Attachments**: ";
+    for (attachment of attachments) {
+      const attachmentFile = await browser.messages.getAttachmentFile(
+        mailHeader.id,
+        attachment.partName
+      );
 
-    const formData = new FormData();
-    formData.append("data", attachmentFile);
-    formData.append("props", JSON.stringify({ title: attachment.name }));
-    // https://joplinapp.org/api/references/rest_api/#post-resources
-    url = await common.generateUrl("resources");
+      const formData = new FormData();
+      formData.append("data", attachmentFile);
+      formData.append("props", JSON.stringify({ title: attachment.name }));
+      // https://joplinapp.org/api/references/rest_api/#post-resources
+      url = await common.generateUrl("resources");
+      response = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+      const resourceInfo = await response.json();
+      attachmentString += `\n[${attachment.name}](:/${resourceInfo["id"]})`;
+    }
+
+    // Always operate on body, even if previously used body_html.
+    // TODO: Check is this has side effects.
+    url = await common.generateUrl(`notes/${noteInfo["id"]}`);
     response = await fetch(url, {
-      method: "POST",
-      body: formData,
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ body: noteInfo["body"] + attachmentString }),
     });
-    const resourceInfo = await response.json();
-    attachmentString += `\n[${attachment.name}](:/${resourceInfo["id"]})`;
-  }
-
-  // Always operate on body, even if previously used body_html.
-  // TODO: Check is this has side effects.
-  url = await common.generateUrl(`notes/${noteInfo["id"]}`);
-  response = await fetch(url, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ body: noteInfo["body"] + attachmentString }),
-  });
-  if (!response.ok) {
-    console.log(await response.text());
+    if (!response.ok) {
+      console.log(await response.text());
+    }
   }
 }
 
