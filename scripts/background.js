@@ -1,5 +1,12 @@
 const common = require("./common");
 
+// Add a prefix to all log messages of this module.
+const originalConsoleLog = console.log;
+console.log = function () {
+  const new_args = ["Joplin Export:"].concat(Array.from(arguments));
+  originalConsoleLog.apply(console, new_args);
+};
+
 async function handleJoplinButton(tab, info) {
   // The icon will be red during transmission and if anything failed.
   // webextension-api.thunderbird.net/en/latest/messageDisplayAction.html#seticon-details
@@ -27,7 +34,7 @@ async function processMail(mailHeader) {
 
   // https://webextension-api.thunderbird.net/en/91/messages.html#messages-messageheader
   if (!mailHeader) {
-    throw new Error("Mail header is empty");
+    return "Mail header is empty";
   }
 
   // Body
@@ -50,7 +57,7 @@ async function processMail(mailHeader) {
   const mailBodyHtml = getMailContent(mailObject, "text/html");
   const mailBodyPlain = getMailContent(mailObject, "text/plain");
   if (!mailBodyHtml && !mailBodyPlain) {
-    throw new Error("Mail body is empty");
+    return "Mail body is empty";
   }
 
   // Add a note with the email content
@@ -76,6 +83,9 @@ async function processMail(mailHeader) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
+  if (!response.ok) {
+    return `Failed to create note: ${await response.text()}`;
+  }
   const noteInfo = await response.json();
 
   //////////////////////////////////////////////////
@@ -90,6 +100,10 @@ async function processMail(mailHeader) {
     // Check whether tag exists already
     url = await common.generateUrl("search", [`query=${tag}`, "type=tag"]);
     response = await fetch(url);
+    if (!response.ok) {
+      console.warn(`Search for tag failed: ${await response.text()}`);
+      continue;
+    }
     const searchResult = await response.json();
     const matchingTags = searchResult["items"];
 
@@ -102,13 +116,18 @@ async function processMail(mailHeader) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: tag }),
       });
+      if (!response.ok) {
+        console.warn(`Failed to create tag: ${await response.text()}`);
+        continue;
+      }
       const tagInfo = await response.json();
       tagId = tagInfo["id"];
     } else if (matchingTags.length === 1) {
       // use id of the existing tag
       tagId = matchingTags[0]["id"];
     } else {
-      throw new Error(`Too many matching tags "${matchingTags}" for "${tag}"`);
+      console.warn(`Too many matching tags "${matchingTags}" for "${tag}"`);
+      continue;
     }
 
     // attach tag to note
@@ -118,6 +137,10 @@ async function processMail(mailHeader) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: noteInfo["id"] }),
     });
+    if (!response.ok) {
+      console.warn(`Failed to attach tag to note: ${await response.text()}`);
+      continue; // not necessary, but added in case of a future refactoring
+    }
   }
 
   //////////////////////////////////////////////////
@@ -143,6 +166,10 @@ async function processMail(mailHeader) {
         method: "POST",
         body: formData,
       });
+      if (!response.ok) {
+        console.warn(`Failed to create resource: ${await response.text()}`);
+        continue;
+      }
       const resourceInfo = await response.json();
       attachmentString += `\n[${attachment.name}](:/${resourceInfo["id"]})`;
     }
@@ -156,9 +183,12 @@ async function processMail(mailHeader) {
       body: JSON.stringify({ body: noteInfo["body"] + attachmentString }),
     });
     if (!response.ok) {
-      console.log(await response.text());
+      console.warn(
+        `Failed to attach resource to note: ${await response.text()}`
+      );
     }
   }
+  return null;
 }
 
 browser.browserAction.onClicked.addListener(handleJoplinButton);
