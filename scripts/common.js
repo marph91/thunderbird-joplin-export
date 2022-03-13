@@ -6,13 +6,18 @@ async function getSetting(name) {
 async function generateUrl(path, query = []) {
   // Create a valid URL to access the joplin API.
   // I. e. add base URL and token.
-  const scheme = await getSetting("joplinScheme");
-  const host = await getSetting("joplinHost");
-  const port = await getSetting("joplinPort");
-  const token = await getSetting("joplinToken");
+  const { joplinScheme, joplinHost, joplinPort, joplinToken } =
+    await browser.storage.local.get([
+      "joplinScheme",
+      "joplinHost",
+      "joplinPort",
+      "joplinToken",
+    ]);
   // TODO: Does this modify the original array, like in python?
-  query.push(`token=${token}`);
-  return `${scheme}://${host}:${port}/${path}?${query.join("&")}`;
+  query.push(`token=${joplinToken}`);
+  return `${joplinScheme}://${joplinHost}:${joplinPort}/${path}?${query.join(
+    "&"
+  )}`;
 }
 
 module.exports = {
