@@ -2,6 +2,8 @@
 
 Easily export your thunderbird emails to Joplin.
 
+[![build](https://github.com/marph91/thunderbird-joplin-export/actions/workflows/build.yml/badge.svg)](https://github.com/marph91/thunderbird-joplin-export/actions/workflows/build.yml)
+
 ## Features
 
 - Export a single or multiple emails to Joplin.
