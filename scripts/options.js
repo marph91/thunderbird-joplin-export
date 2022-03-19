@@ -136,9 +136,10 @@ async function initOptions() {
 
   // Try to obtain the settings from local storage. If not possible, fall back to the defaults.
   for (setting in default_map) {
-    await browser.storage.local.set({
-      [setting]: (await common.getSetting(setting)) || default_map[setting],
-    });
+    const currentValue = await common.getSetting(setting);
+    // 'false' is a valid value. Only check for 'null' and 'undefined'.
+    const newValue = currentValue != null ? currentValue : default_map[setting];
+    await browser.storage.local.set({ [setting]: newValue });
   }
 
   // Set values of the UI
