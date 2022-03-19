@@ -25,17 +25,16 @@
     /* Align by using css tables: https://stackoverflow.com/a/23741073/7410886 */
     fieldset {
       display: table;
+      border-collapse: separate;
+      border-spacing: 3px 3px;
     }
 
     p {
       display: table-row;
     }
 
-    label {
-      display: table-cell;
-      padding-right: 10px;
-    }
-
+    label,
+    span,
     input[type="checkbox"] {
       display: table-cell;
     }
