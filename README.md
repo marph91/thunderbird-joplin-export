@@ -13,8 +13,9 @@ Easily export your thunderbird emails to Joplin.
 
 - Thunderbird addon store: TODO
 - Manually import the addon:
-  1. Download "joplin-export.xpi" from the github build action.
-  2. Import to Thunderbird via the addon manager -> "Install Add-on From File...".
+  1. Download the artifacts from the github build action: https://github.com/marph91/thunderbird-joplin-export/actions/workflows/build.yml.
+  2. Extract the archive and look for "joplin-export.xpi".
+  3. Import to Thunderbird via the addon manager -> "Install Add-on From File...".
 
 ## Usage
 
