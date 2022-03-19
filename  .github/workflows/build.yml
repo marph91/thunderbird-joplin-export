@@ -1,0 +1,16 @@
+name: build
+
+on: [push]
+
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build the addon
+        run: ./build_xpi.sh
+      - name: Archive the build result
+        uses: actions/upload-artifact@v3
+        with:
+          name: joplin-export-extension
+          path: joplin-export.xpi
