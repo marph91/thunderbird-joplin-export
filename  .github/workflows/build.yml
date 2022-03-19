@@ -12,5 +12,5 @@ jobs:
       - name: Archive the build result
         uses: actions/upload-artifact@v3
         with:
-          name: joplin-export-extension
+          name: joplin-export-addon
           path: joplin-export.xpi

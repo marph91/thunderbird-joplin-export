@@ -1,4 +1,4 @@
-# Joplin Export Thunderbird Extension
+# Joplin Export Thunderbird Addon
 
 Easily export your thunderbird emails to Joplin.
 
@@ -6,6 +6,13 @@ Easily export your thunderbird emails to Joplin.
 
 - Export a single or multiple emails to Joplin.
 - Add tags and attachments from the email.
+
+## Installation
+
+- Thunderbird addon store: TODO
+- Manually import the addon:
+  1. Download "joplin-export.xpi" from the github build action.
+  2. Import to Thunderbird via the addon manager -> "Install Add-on From File...".
 
 ## Usage
 
