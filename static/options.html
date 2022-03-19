@@ -10,7 +10,12 @@
     /* https://medium.com/hypersphere-codes/detecting-system-theme-in-javascript-css-react-f6b961916d48 */
     @media (prefers-color-scheme: light) {
       body {
-        background: #FFF;
+        background: #fff;
+        color: #333;
+      }
+
+      .hovertext:before {
+        background-color: #fff;
         color: #333;
       }
     }
@@ -18,7 +23,12 @@
     @media (prefers-color-scheme: dark) {
       body {
         background: #333;
-        color: #FFF;
+        color: #fff;
+      }
+
+      .hovertext:before {
+        background-color: #333;
+        color: #fff;
       }
     }
 
@@ -45,6 +55,30 @@
       display: table-cell;
       width: 100%;
     }
+
+    /* Hovertexts for additional help, next to the input fields. */
+    .hovertext {
+      position: relative;
+    }
+
+    .hovertext:before {
+      content: attr(data-hover);
+      visibility: hidden;
+      opacity: 0;
+      width: 200px;
+      border: 1px solid #000;
+      padding-left: 5px;
+      transition: opacity 1s ease-in-out;
+
+      position: absolute;
+      z-index: 1;
+      left: 150%;
+    }
+
+    .hovertext:hover:before {
+      opacity: 1;
+      visibility: visible;
+    }
   </style>
 </head>
 
@@ -65,16 +99,27 @@
       <input id="joplinPort" type="number" />
     </p>
     <p>
-      <label for="joplinToken">Token:</label>
-      <input id="joplinToken" type="string" />
-    </p>
-    <p>
       <label for="joplinUrl">URL:</label>
       <input id="joplinUrl" type="string" disabled />
+      <span class="hovertext" data-hover="Resulting URL from your inputs above.">
+        <small>&#9432;</small>
+      </span>
+    </p>
+    <p>
+      <label for="joplinToken">Token:</label>
+      <input id="joplinToken" type="string" />
+      <span class="hovertext" data-hover="Joplin API token. You can find it at Tools -> Options -> Webclipper.">
+        <!-- Limit the size of the icon, since it's somehow a bit larger than usual letters. -->
+        <small>&#9432;</small>
+      </span>
     </p>
     <p>
       <label for="joplinStatus">Status:</label>
       <input id="joplinStatus" type="string" disabled />
+      <span class="hovertext"
+        data-hover="If the status is not 'working', please check the configuration or consult the readme.">
+        <small>&#9432;</small>
+      </span>
     </p>
   </fieldset>
 
@@ -93,7 +138,10 @@
         <option value="notebook_id">Notebook Name</option>
          -->
       </select>
-      <button type="button" id="btnRefreshNotebooks">Refresh</button>
+      <span><button type="button" id="btnRefreshNotebooks">&#8634;</button></span>
+      <span class="hovertext" data-hover="The exported notes will be stored in this folder.">
+        <small>&#9432;</small>
+      </span>
     </p>
     <p>
       <label for="joplinNoteFormat">Format:</label>
@@ -105,6 +153,9 @@
     <p>
       <label for="joplinNoteTags">Tags:</label>
       <input id="joplinNoteTags" type="string" />
+      <span class="hovertext" data-hover="Custom tags for the joplin note.">
+        <small>&#9432;</small>
+      </span>
     </p>
     <p>
       <label></label>
