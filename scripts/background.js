@@ -110,9 +110,14 @@ async function processMail(mailHeader) {
 
   // User specified tags are stored in a comma separated string.
   const userTagsString = await common.getSetting("joplinNoteTags");
-  const userTags = userTagsString.split(",");
+  let tags = userTagsString.split(",");
 
-  for (tag of userTags.concat(mailHeader.tags)) {
+  const includeMailTags = await common.getSetting("joplinNoteTagsFromEmail");
+  if (includeMailTags) {
+    tags = tags.concat(mailHeader.tags);
+  }
+
+  for (tag of tags) {
     // Check whether tag exists already
     url = await common.generateUrl("search", [`query=${tag}`, "type=tag"]);
     response = await fetch(url);
@@ -162,6 +167,11 @@ async function processMail(mailHeader) {
   //////////////////////////////////////////////////
   // Attachments
   //////////////////////////////////////////////////
+
+  const howToHandleAttachments = await common.getSetting("joplinAttachments");
+  if (howToHandleAttachments === "ignore") {
+    return null;
+  }
 
   // https://webextension-api.thunderbird.net/en/latest/messages.html#getattachmentfile-messageid-partname
   const attachments = await browser.messages.listAttachments(mailHeader.id);

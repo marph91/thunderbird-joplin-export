@@ -7,9 +7,9 @@ const default_map = {
   joplinToken:
     "ac6882d828b99b9e72a418a11285edf06315d3a3cdc5340ee49df2380ac59adf9199f41fb8bc08f62e21d6308e11402d148c8f2ab57053f7145947df2700ce7e",
   joplinNoteFormat: "text/html",
-  joplinAttachments: "ignore",
+  joplinAttachments: "attach",
   joplinNoteTags: "email",
-  joplinNoteTagsFromEmail: false,
+  joplinNoteTagsFromEmail: true,
 };
 
 async function checkJoplinConnection() {
