@@ -23,7 +23,7 @@ async function handleJoplinButton(tab, info) {
   // webextension-api.thunderbird.net/en/latest/messageDisplayAction.html#seticon-details
   browser.browserAction.setIcon({ path: "../images/logo_96_red.png" });
 
-  // Check for joplin api token. If it isn't present, we can skip everything else.
+  // Check for Joplin API token. If it isn't present, we can skip everything else.
   const apiToken = await common.getSetting("joplinToken");
   if (!apiToken) {
     throw new Error("API token not set. Please specify it at the settings.");

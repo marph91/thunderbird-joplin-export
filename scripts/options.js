@@ -20,7 +20,7 @@ async function checkJoplinConnection() {
     return {
       working: false,
       message:
-        "Pinging joplin failed. Please check that joplin is running and the webclipper is enabled.",
+        "Pinging Joplin failed. Please check that Joplin is running and the webclipper is enabled.",
     };
   }
 
@@ -28,7 +28,7 @@ async function checkJoplinConnection() {
   if (response_text !== "JoplinClipperServer") {
     return {
       working: false,
-      message: `Unexpected ping response "${response_text}". Please check that addon and joplin versions are matching.`,
+      message: `Unexpected ping response "${response_text}". Please check that addon and Joplin versions are matching.`,
     };
   }
 

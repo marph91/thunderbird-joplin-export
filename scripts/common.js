@@ -4,7 +4,7 @@ async function getSetting(name) {
 }
 
 async function generateUrl(path, query = []) {
-  // Create a valid URL to access the joplin API.
+  // Create a valid URL to access the Joplin API.
   // I. e. add base URL and token.
   const { joplinScheme, joplinHost, joplinPort, joplinToken } =
     await browser.storage.local.get([
