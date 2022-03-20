@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # install dependencies
-npm install
+npm install --production
 
 # bundle js modules
 npx browserify scripts/browser_wrapper.js scripts/joplin_api.js scripts/process_mail.js scripts/background.js -o static/background.js
