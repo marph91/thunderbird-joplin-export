@@ -1,4 +1,5 @@
-const common = require("./common");
+const browserWrapper = require("./browser_wrapper");
+const joplinApi = require("./joplin_api");
 
 const default_map = {
   joplinScheme: "http",
@@ -12,7 +13,7 @@ const default_map = {
 };
 
 async function checkJoplinConnection() {
-  let url = await common.generateUrl("ping");
+  let url = await joplinApi.generateUrl("ping");
   let response;
   try {
     response = await fetch(url);
@@ -33,7 +34,7 @@ async function checkJoplinConnection() {
   }
 
   // Ping doesn't care for the token, so we need to check another endpoint.
-  url = await common.generateUrl("folders");
+  url = await joplinApi.generateUrl("folders");
   response = await fetch(url);
   if (!response.ok) {
     return {
@@ -109,7 +110,7 @@ async function refreshNotebooks() {
       }
     }
   }
-  const url = await common.generateUrl("folders", ["as_tree=1"]);
+  const url = await joplinApi.generateUrl("folders", ["as_tree=1"]);
   const response = await fetch(url);
   if (!response.ok) {
     return;
@@ -123,7 +124,9 @@ async function refreshNotebooks() {
   fillNotebookSelect(notebookTree, notebookSelect);
 
   // Set notebook if possible
-  const parentFolderId = await common.getSetting("joplinNoteParentFolder");
+  const parentFolderId = await browserWrapper.getSetting(
+    "joplinNoteParentFolder"
+  );
   if (parentFolderId) {
     notebookSelect.value = parentFolderId;
   }
@@ -135,7 +138,7 @@ async function initOptions() {
 
   // Try to obtain the settings from local storage. If not possible, fall back to the defaults.
   for (setting in default_map) {
-    const currentValue = await common.getSetting(setting);
+    const currentValue = await browserWrapper.getSetting(setting);
     // 'false' is a valid value. Only check for 'null' and 'undefined'.
     const newValue = currentValue != null ? currentValue : default_map[setting];
     await browser.storage.local.set({ [setting]: newValue });
@@ -144,7 +147,7 @@ async function initOptions() {
   // Set values of the UI
   for (setting in default_map) {
     const element = document.getElementById(setting);
-    const value = await common.getSetting(setting);
+    const value = await browserWrapper.getSetting(setting);
     if (element.type === "checkbox") {
       element.checked = value;
     } else {

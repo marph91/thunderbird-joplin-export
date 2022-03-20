@@ -1,13 +1,10 @@
-async function getSetting(name) {
-  // Convenience wrapper to get a setting from local storage.
-  return (await browser.storage.local.get(name))[name];
-}
+const browserWrapper = require("./browser_wrapper");
 
 async function generateUrl(path, query = []) {
   // Create a valid URL to access the Joplin API.
   // I. e. add base URL and token.
   const { joplinScheme, joplinHost, joplinPort, joplinToken } =
-    await browser.storage.local.get([
+    await browserWrapper.getSettings([
       "joplinScheme",
       "joplinHost",
       "joplinPort",
@@ -21,6 +18,5 @@ async function generateUrl(path, query = []) {
 }
 
 module.exports = {
-  getSetting,
   generateUrl,
 };
