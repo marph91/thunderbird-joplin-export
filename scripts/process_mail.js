@@ -55,6 +55,9 @@ async function processMail(mailHeader) {
 
   // Body
   function getMailContent(mail, contentType, content = "") {
+    if (!mail) {
+      return content;
+    }
     if (mail.body && mail.contentType === contentType) {
       content += mail.body;
     }
