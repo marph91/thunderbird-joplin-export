@@ -70,7 +70,6 @@ async function processMail(mailHeader) {
   }
 
   const mailObject = await browserWrapper.getMail(mailHeader.id);
-  const contentType = await browserWrapper.getSetting("joplinNoteFormat");
 
   // text/html and text/plain seem to be the only used MIME types for the body.
   const mailBodyHtml = getMailContent(mailObject, "text/html");
@@ -87,6 +86,7 @@ async function processMail(mailHeader) {
   };
 
   // If the preferred content type doesn't contain data, fall back to the other content type.
+  const contentType = await browserWrapper.getSetting("joplinNoteFormat");
   if ((contentType === "text/html" && mailBodyHtml) || !mailBodyPlain) {
     console.log("Sending data in HTML format.");
     data["body_html"] = mailBodyHtml;

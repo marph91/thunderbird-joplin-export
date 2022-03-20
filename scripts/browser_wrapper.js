@@ -10,8 +10,8 @@ async function getSettings(names) {
   return await browser.storage.local.get(names);
 }
 
-async function setSetting(setting, value) {
-  await browser.storage.local.set({ [setting]: value });
+async function setSetting(name, value) {
+  await browser.storage.local.set({ [name]: value });
 }
 
 function setIcon(path) {
