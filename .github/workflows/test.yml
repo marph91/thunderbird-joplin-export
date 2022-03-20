@@ -1,13 +1,13 @@
 name: test
 
-on: [push]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   container:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install the test dependencies
-        run: npm install --only=dev
+      - name: Install dependencies
+        run: npm install
       - name: Run the tests
         run: npm run test
