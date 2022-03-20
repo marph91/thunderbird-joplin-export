@@ -8,4 +8,4 @@ npx browserify scripts/browser_wrapper.js scripts/joplin_api.js scripts/process_
 npx browserify scripts/browser_wrapper.js scripts/joplin_api.js scripts/options.js -o static/options.js
 
 # create thunderbird addon
-zip joplin-export.xpi _locales images/*.png static manifest.json
+zip joplin-export.xpi _locales/**/*.json images/*.png static/* manifest.json
