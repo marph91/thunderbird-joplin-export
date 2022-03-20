@@ -1,5 +1,11 @@
 {
   "dependencies": {
     "browserify": "^17.0.0"
+  },
+  "devDependencies": {
+    "jest": "^27.5.1"
+  },
+  "scripts": {
+    "test": "jest"
   }
 }

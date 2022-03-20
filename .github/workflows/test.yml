@@ -1,0 +1,13 @@
+name: test
+
+on: [push]
+
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install the test dependencies
+        run: npm install --only=dev
+      - name: Run the tests
+        run: npm run test
