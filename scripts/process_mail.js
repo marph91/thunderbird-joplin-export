@@ -114,7 +114,7 @@ async function processMail(mailHeader) {
 
   // User specified tags are stored in a comma separated string.
   const userTagsString = await browserWrapper.getSetting("joplinNoteTags");
-  let tags = userTagsString.split(",");
+  let tags = userTagsString ? userTagsString.split(",") : [];
 
   const includeMailTags = await browserWrapper.getSetting(
     "joplinNoteTagsFromEmail"
