@@ -3,7 +3,9 @@
     "browserify": "^17.0.0"
   },
   "devDependencies": {
-    "jest": "^27.5.1"
+    "express": "^4.17.3",
+    "jest": "^27.5.1",
+    "node-fetch": "^2.6.7"
   },
   "scripts": {
     "test": "jest"
