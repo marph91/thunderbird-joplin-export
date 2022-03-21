@@ -1,50 +1,20 @@
 const express = require("express");
 const fetch = require("node-fetch");
 
-const browserWrapper = require("../scripts/browser_wrapper");
+const { browser } = require("browser");
+global.browser = browser;
 
-const { processMail } = require("../scripts/process_mail");
+const { processMail } = require("../scripts/background");
 
 // Replace the javascript fetch with nodejs fetch.
 global.fetch = jest.fn(fetch);
-
-// Mock all browser access, since we aren't in the frontend.
-jest.mock("../scripts/browser_wrapper");
-
-// TODO: How to put this in a class and mock only the member functions?
-let localStorage;
-
-browserWrapper.getSetting.mockImplementation(async (name) => {
-  // console.log(localStorage);
-  return localStorage[name];
-});
-browserWrapper.getSettings.mockImplementation(async (names) => {
-  let settings = {};
-  for (key of names) {
-    settings[key] = localStorage[key];
-  }
-  return settings;
-});
-browserWrapper.setSetting.mockImplementation(async (name, value) => {
-  localStorage[name] = value;
-});
 
 // Simple test server. Will receive the request that should go to Joplin.
 let app = express();
 let server;
 let requests;
 
-const getJsonBody = async (request) => {
-  // https://nodejs.dev/learn/get-http-request-body-data-using-nodejs
-  let body = "";
-  request.on("data", (data) => {
-    body += data;
-  });
-  request.on("end", () => {
-    return JSON.parse(body);
-  });
-};
-
+// Capture all console log output.
 console.log = jest.fn();
 
 beforeAll(() => {
@@ -54,7 +24,19 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  localStorage = {};
+  // Set local storage to mostly default values.
+  browser.storage.local.data = {
+    joplinScheme: "http",
+    joplinHost: "127.0.0.1",
+    joplinPort: 41142,
+    joplinToken: "xyz",
+
+    joplinNoteParentFolder: "arbitrary folder",
+    joplinNoteFormat: "text/html",
+    joplinNoteTags: "email",
+    joplinNoteTagsFromEmail: true,
+    joplinAttachments: "attach",
+  };
   requests = [];
 });
 
@@ -69,7 +51,7 @@ describe("process mail", () => {
   });
 
   test("undefined body", async () => {
-    browserWrapper.getMail.mockResolvedValue(undefined);
+    browser.messages.getFull.mockResolvedValue(undefined);
 
     // Arbitrary id, since we mock the mail anyway.
     const result = await processMail({ id: 0 });
@@ -77,28 +59,22 @@ describe("process mail", () => {
   });
 
   test("empty body", async () => {
-    browserWrapper.getMail.mockResolvedValue({});
+    browser.messages.getFull.mockResolvedValue({});
 
     const result = await processMail({ id: 0 });
     expect(result).toBe("Mail body is empty");
   });
 
   test("setting html, html body available", async () => {
+    const subject = "test subject";
+    const author = "test author";
+    const body = "test body html";
+
     // TODO: test all permutations, i. e.:
     // - format preference: HTML/plain
     // - HTML available: y/n
     // - Plain available: y/n
-
-    localStorage = {
-      joplinNoteParentFolder: "arbitrary folder",
-      joplinScheme: "http",
-      joplinHost: "127.0.0.1",
-      joplinPort: 41142,
-      joplinToken: "xyz",
-    };
-    const subject = "test subject";
-    const author = "test author";
-    const body = "test body html";
+    await browser.storage.local.set({ joplinNoteFormat: "text/html" });
 
     // TODO: How to flexibly assign and delete routes/middlewares?
     // https://stackoverflow.com/a/28369539/7410886
@@ -108,7 +84,7 @@ describe("process mail", () => {
     });
 
     // TODO: test this and other permutations
-    browserWrapper.getMail.mockResolvedValue({
+    browser.messages.getFull.mockResolvedValue({
       parts: [
         {
           contentType: "text/html",
@@ -133,11 +109,11 @@ describe("process mail", () => {
     expect(requests.length).toBe(1);
     expect(requests[0].method).toBe("POST");
     expect(requests[0].url).toBe(
-      `/notes?fields=id,body&token=${localStorage.joplinToken}`
+      `/notes?fields=id,body&token=${browser.storage.local.data.joplinToken}`
     );
     expect(requests[0].body).toEqual({
       body_html: body,
-      parent_id: localStorage.joplinNoteParentFolder,
+      parent_id: "",
       title: `${subject} from ${author}`,
     });
 
