@@ -68,62 +68,85 @@ describe("process mail", () => {
     expect(result).toBe("Mail body is empty");
   });
 
-  test("setting html, html body available", async () => {
-    const subject = "test subject";
-    const author = "test author";
-    const body = "test body html";
+  test.each`
+    preferredFormat | htmlAvailable | plainAvailable | resultFormat
+    ${"text/html"}  | ${false}      | ${false}       | ${null}
+    ${"text/html"}  | ${false}      | ${true}        | ${"text/plain"}
+    ${"text/html"}  | ${true}       | ${false}       | ${"text/html"}
+    ${"text/html"}  | ${true}       | ${true}        | ${"text/html"}
+    ${"text/plain"} | ${false}      | ${false}       | ${null}
+    ${"text/plain"} | ${false}      | ${true}        | ${"text/plain"}
+    ${"text/plain"} | ${true}       | ${false}       | ${"text/html"}
+    ${"text/plain"} | ${true}       | ${true}        | ${"text/plain"}
+  `(
+    "preferred: $preferredFormat | available: html: $htmlAvailable, plain: $plainAvailable | result: $resultFormat",
+    async ({
+      preferredFormat,
+      htmlAvailable,
+      plainAvailable,
+      resultFormat,
+    }) => {
+      const subject = "test subject";
+      const author = "test author";
+      const body = "test body";
 
-    // TODO: test all permutations, i. e.:
-    // - format preference: HTML/plain
-    // - HTML available: y/n
-    // - Plain available: y/n
-    await browser.storage.local.set({ joplinNoteFormat: "text/html" });
+      await browser.storage.local.set({ joplinNoteFormat: preferredFormat });
 
-    // TODO: How to flexibly assign and delete routes/middlewares?
-    // https://stackoverflow.com/a/28369539/7410886
-    app.use((req, res, next) => {
-      requests.push(req);
-      res.status(200).send(JSON.stringify({}));
-    });
+      // TODO: How to flexibly assign and delete routes/middlewares?
+      // https://stackoverflow.com/a/28369539/7410886
+      app.use((req, res, next) => {
+        requests.push(req);
+        res.status(200).send(JSON.stringify({}));
+      });
 
-    // TODO: test this and other permutations
-    browser.messages.getFull.mockResolvedValue({
-      parts: [
-        {
-          contentType: "text/html",
-          body: body,
-          parts: [],
-        },
-        {
-          contentType: "text/plain",
-          body: "",
-          parts: [],
-        },
-      ],
-    });
+      browser.messages.getFull.mockResolvedValue({
+        parts: [
+          {
+            contentType: "text/html",
+            body: htmlAvailable ? body : "",
+            parts: [],
+          },
+          {
+            contentType: "text/plain",
+            body: plainAvailable ? body : "",
+            parts: [],
+          },
+        ],
+      });
 
-    const result = await processMail({
-      id: 0,
-      subject: subject,
-      author: author,
-    });
+      const result = await processMail({
+        id: 0,
+        subject: subject,
+        author: author,
+      });
 
-    expect(result).toBe(null);
-    expect(requests.length).toBe(1);
-    expect(requests[0].method).toBe("POST");
-    expect(requests[0].url).toBe(
-      `/notes?fields=id,body&token=${browser.storage.local.data.joplinToken}`
-    );
-    expect(requests[0].body).toEqual({
-      body_html: body,
-      parent_id: "",
-      title: `${subject} from ${author}`,
-    });
+      if (!resultFormat) {
+        expect(result).toBe("Mail body is empty");
+        return;
+      }
 
-    // Finally check the console output.
-    expect(console.log.mock.calls.length).toBe(1);
-    expect(console.log.mock.calls[0][0]).toBe("Sending data in HTML format.");
-  });
+      expect(result).toBe(null);
+      expect(requests.length).toBe(1);
+      expect(requests[0].method).toBe("POST");
+      expect(requests[0].url).toBe(
+        `/notes?fields=id,body&token=${browser.storage.local.data.joplinToken}`
+      );
+      const expectedKey = resultFormat === "text/html" ? "body_html" : "body";
+      expect(requests[0].body).toEqual({
+        [expectedKey]: body,
+        parent_id: browser.storage.local.data.joplinNoteParentFolder,
+        title: `${subject} from ${author}`,
+      });
+
+      // Finally check the console output.
+      expect(console.log.mock.calls.length).toBe(1);
+      const message =
+        resultFormat === "text/html"
+          ? "Sending data in HTML format."
+          : "Sending data in plain format.";
+      expect(console.log.mock.calls[0][0]).toBe(message);
+    }
+  );
 });
 
 describe("process tag", () => {
