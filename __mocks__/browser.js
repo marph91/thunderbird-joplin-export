@@ -6,7 +6,7 @@ const browser = {
       get: async (nameOrNames) => {
         switch (typeof nameOrNames) {
           case "string":
-            return browser.storage.local.data[nameOrNames];
+            return { [nameOrNames]: browser.storage.local.data[nameOrNames] };
           case "object":
             result = {};
             for (const name of nameOrNames) {
