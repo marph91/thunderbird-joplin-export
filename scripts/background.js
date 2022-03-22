@@ -1,23 +1,5 @@
 const common = require("./common");
 
-// Add a prefix to all log messages of this module.
-// TODO: Check for a more convenient and complete way.
-const originalConsoleLog = console.log;
-console.log = function () {
-  const new_args = ["Joplin Export:"].concat(Array.from(arguments));
-  originalConsoleLog.apply(console, new_args);
-};
-const originalConsoleError = console.error;
-console.error = function () {
-  const new_args = ["Joplin Export:"].concat(Array.from(arguments));
-  originalConsoleError.apply(console, new_args);
-};
-const originalConsoleWarn = console.warn;
-console.warn = function () {
-  const new_args = ["Joplin Export:"].concat(Array.from(arguments));
-  originalConsoleWarn.apply(console, new_args);
-};
-
 async function handleJoplinButton(tab, info) {
   // The icon will be red during transmission and if anything failed.
   browser.browserAction.setIcon({ path: "../images/logo_96_red.png" });
