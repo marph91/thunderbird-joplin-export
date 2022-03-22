@@ -24,6 +24,8 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
+  jest.clearAllMocks();
+
   // Set local storage to mostly default values.
   browser.storage.local.data = {
     joplinScheme: "http",
@@ -33,9 +35,10 @@ beforeEach(() => {
 
     joplinNoteParentFolder: "arbitrary folder",
     joplinNoteFormat: "text/html",
-    joplinNoteTags: "email",
-    joplinNoteTagsFromEmail: true,
-    joplinAttachments: "attach",
+    // Try to keep the tests minimal.
+    joplinNoteTags: "",
+    joplinNoteTagsFromEmail: false,
+    joplinAttachments: "ignore",
   };
   requests = [];
 });
