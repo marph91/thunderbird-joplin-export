@@ -4,7 +4,7 @@ const fetch = require("node-fetch");
 const { browser } = require("browser");
 global.browser = browser;
 
-const { processMail } = require("../scripts/background");
+const { processMail, handleJoplinButton } = require("../scripts/background");
 
 // Replace the javascript fetch with nodejs fetch.
 global.fetch = jest.fn(fetch);
@@ -45,6 +45,30 @@ beforeEach(() => {
 
 afterAll(() => {
   server.close();
+});
+
+describe("handle button", () => {
+  test("API token not set", async () => {
+    await browser.storage.local.set({ joplinToken: undefined });
+
+    expect(handleJoplinButton()).rejects.toThrow(
+      "API token not set. Please specify it at the settings."
+    );
+    expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
+  });
+
+  test("Correct icon color", async () => {
+    browser.messageDisplay.getDisplayedMessages.mockImplementationOnce(
+      async () => {
+        // red during processing
+        expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
+        return [];
+      }
+    );
+    await handleJoplinButton({ id: 0 });
+    // blue when finished successfully
+    expect(browser.browserAction.icon).toBe("../images/logo_96_blue.png");
+  });
 });
 
 describe("process mail", () => {

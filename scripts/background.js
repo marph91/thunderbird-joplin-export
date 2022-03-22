@@ -204,5 +204,7 @@ async function processMail(mailHeader) {
 browser.browserAction.onClicked.addListener(handleJoplinButton);
 
 module.exports = {
-  processMail, // Only needed for testing.
+  // Only needed for testing.
+  handleJoplinButton,
+  processMail,
 };
