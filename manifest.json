@@ -13,7 +13,7 @@
     }
   },
   "background": {
-    "scripts": ["static/background.js"]
+    "scripts": ["dist/background.js"]
   },
   "browser_action": {
     "default_title": "Joplin Export",
@@ -22,7 +22,7 @@
   // https://developer.thunderbird.net/add-ons/updating/tb78#replacing-options
   // https://github.com/thundernest/sample-extensions/blob/77f79f986e6005c07008d974fa629e258dcceb80/managedStorage/manifest.json
   "options_ui": {
-    "page": "static/options.html"
+    "page": "dist/options.html"
   },
   "permissions": ["messagesRead", "storage"],
   "icons": {

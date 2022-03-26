@@ -4,7 +4,7 @@ const fetch = require("node-fetch");
 const { browser } = require("browser");
 global.browser = browser;
 
-const { processMail, handleJoplinButton } = require("../scripts/background");
+const { processMail, handleJoplinButton } = require("../src/background");
 
 // Replace the javascript fetch with nodejs fetch.
 global.fetch = jest.fn(fetch);

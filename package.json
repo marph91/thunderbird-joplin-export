@@ -8,6 +8,6 @@
     "node-fetch": "^2.6.7"
   },
   "scripts": {
-    "test": "jest"
+    "test": "./build_xpi.sh && jest"
   }
 }

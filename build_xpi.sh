@@ -1,11 +1,14 @@
 #!/bin/sh
 
 # install dependencies
-npm install --production
+npm install
 
 # bundle js modules
-npx browserify scripts/common.js scripts/background.js -o static/background.js
-npx browserify scripts/common.js scripts/options.js -o static/options.js
+npx browserify src/common.js src/background.js -o dist/background.js
+npx browserify src/common.js src/options.js -o dist/options.js
+
+# Copy html to the correct folder.
+cp src/*.html dist
 
 # create thunderbird addon
-zip joplin-export.xpi _locales/**/*.json images/*.png static/* manifest.json
+zip joplin-export.xpi _locales/**/*.json images/*.png dist/* manifest.json

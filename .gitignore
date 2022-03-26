@@ -7,4 +7,4 @@ notes.txt
 package-lock.json
 
 # JS files are bundled by browserify. See "build_xpi.sh".
-static/*.js
+dist

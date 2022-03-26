@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const html = fs.readFileSync(path.resolve(__dirname, "../static/options.html"));
+const html = fs.readFileSync(path.resolve(__dirname, "../dist/options.html"));
 
 const { browser } = require("browser");
 
@@ -12,12 +12,11 @@ let dom;
 
 describe("options", function () {
   beforeAll((done) => {
-    // TODO: How to load scripts from "scripts" folder?
     dom = new JSDOM(html.toString(), {
       runScripts: "dangerously",
       resources: "usable",
       // https://github.com/jsdom/jsdom/issues/3023#issuecomment-883585057
-      url: `file://${__dirname}/../static/options.html`,
+      url: `file://${__dirname}/../dist/options.html`,
     });
     global.browser = browser;
     dom.window.browser = browser;
@@ -64,9 +63,6 @@ describe("options", function () {
   });
 
   test("save button", async () => {
-    // await new Promise((r) => setTimeout(r, 2000));
-    console.log(dom.window.document.readyState);
-
     const saveButton = dom.window.document.getElementById("btnSave");
     await saveButton.dispatchEvent(new dom.window.MouseEvent("click"));
   });
