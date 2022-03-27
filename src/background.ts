@@ -12,7 +12,6 @@ async function handleJoplinButton(tab, info) {
 
   const mailHeaders = await browser.messageDisplay.getDisplayedMessages(tab.id);
   const results = await Promise.all(mailHeaders.map(processMail));
-  for (error of results) {
     if (error) {
       console.error(error);
     }
@@ -43,7 +42,6 @@ async function processMail(mailHeader) {
       content += mail.body;
     }
     if (mail.parts) {
-      for (let part of mail.parts) {
         content = getMailContent(part, contentType, content);
       }
     }
