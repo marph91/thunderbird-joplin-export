@@ -1,6 +1,38 @@
-const common = require("./common");
+/// TODO: Common functions. For now duplicated in background.js and options.js.
+/// Effort and time cost for bundling are too high.
 
-const default_map = {
+// TODO: Why isn't this working even when the "dom" lib is enabled in tsconfig?
+declare const browser: any;
+
+async function generateUrl(path: string, query: Array<string> = []) {
+  // Create a valid URL to access the Joplin API.
+  // I. e. add base URL and token.
+  const { joplinScheme, joplinHost, joplinPort, joplinToken } =
+    await browser.storage.local.get([
+      "joplinScheme",
+      "joplinHost",
+      "joplinPort",
+      "joplinToken",
+    ]);
+  // TODO: Does this modify the original array, like in python?
+  query.push(`token=${joplinToken}`);
+  return `${joplinScheme}://${joplinHost}:${joplinPort}/${path}?${query.join(
+    "&"
+  )}`;
+}
+
+async function getSetting(name: string) {
+  // Convenience wrapper to get a setting from local storage.
+  // @ts-ignore
+  return (await browser.storage.local.get(name))[name];
+}
+
+/////
+
+declare const btnSave: HTMLButtonElement;
+declare const btnRefreshNotebooks: HTMLButtonElement;
+
+const default_map: { [key: string]: string | number | boolean } = {
   joplinScheme: "http",
   joplinHost: "127.0.0.1",
   joplinPort: 41184,
@@ -12,7 +44,7 @@ const default_map = {
 };
 
 async function checkJoplinConnection() {
-  let url = await common.generateUrl("ping");
+  let url = await generateUrl("ping");
   let response;
   try {
     response = await fetch(url);
@@ -33,7 +65,7 @@ async function checkJoplinConnection() {
   }
 
   // Ping doesn't care for the token, so we need to check another endpoint.
-  url = await common.generateUrl("folders");
+  url = await generateUrl("folders");
   response = await fetch(url);
   if (!response.ok) {
     return {
@@ -46,7 +78,9 @@ async function checkJoplinConnection() {
 }
 
 async function updateConnectionStatus() {
-  let connectionStatus = document.getElementById("joplinStatus");
+  let connectionStatus = document.getElementById(
+    "joplinStatus"
+  ) as HTMLInputElement;
   const { working, message } = await checkJoplinConnection();
   if (working) {
     connectionStatus.style.color = "blue";
@@ -60,17 +94,17 @@ async function updateConnectionStatus() {
 }
 
 async function displayUrl() {
-  document.getElementById("joplinUrl").value =
-    document.getElementById("joplinScheme").value +
+  (document.getElementById("joplinUrl") as HTMLInputElement).value =
+    (document.getElementById("joplinScheme") as HTMLInputElement).value +
     "://" +
-    document.getElementById("joplinHost").value +
+    (document.getElementById("joplinHost") as HTMLInputElement).value +
     ":" +
-    document.getElementById("joplinPort").value;
+    (document.getElementById("joplinPort") as HTMLInputElement).value;
 }
 
 async function savePrefs() {
-  for (setting in default_map) {
-    const element = document.getElementById(setting);
+  for (const setting in default_map) {
+    const element = document.getElementById(setting) as HTMLInputElement;
     let value;
     if (element.type === "checkbox") {
       value = element.checked;
@@ -89,15 +123,25 @@ async function savePrefs() {
   }
 
   await browser.storage.local.set({
-    joplinNoteParentFolder: document.getElementById("joplinNoteParentFolder")
-      .value,
+    joplinNoteParentFolder: (
+      document.getElementById("joplinNoteParentFolder") as HTMLInputElement
+    ).value,
   });
 }
 
 async function refreshNotebooks() {
   // https://stackoverflow.com/a/8674667/7410886
-  function fillNotebookSelect(tree, select, indentationLevel = 0) {
-    for (notebook of tree) {
+  type NotebookTree = Array<{
+    id: string;
+    title: string;
+    children: NotebookTree;
+  }>;
+  function fillNotebookSelect(
+    tree: NotebookTree,
+    select: HTMLSelectElement,
+    indentationLevel = 0
+  ) {
+    for (const notebook of tree) {
       let opt = document.createElement("option");
       opt.value = notebook.id;
       // Spaces: https://stackoverflow.com/a/17855282/7410886
@@ -109,13 +153,15 @@ async function refreshNotebooks() {
       }
     }
   }
-  const url = await common.generateUrl("folders", ["as_tree=1"]);
+  const url = await generateUrl("folders", ["as_tree=1"]);
   const response = await fetch(url);
   if (!response.ok) {
     return;
   }
   const notebookTree = await response.json();
-  let notebookSelect = document.getElementById("joplinNoteParentFolder");
+  let notebookSelect = document.getElementById(
+    "joplinNoteParentFolder"
+  ) as HTMLSelectElement;
   // Clear all options before inserting new ones.
   while (notebookSelect.firstChild) {
     notebookSelect.firstChild.remove();
@@ -123,7 +169,7 @@ async function refreshNotebooks() {
   fillNotebookSelect(notebookTree, notebookSelect);
 
   // Set notebook if possible
-  const parentFolderId = await common.getSetting("joplinNoteParentFolder");
+  const parentFolderId = await getSetting("joplinNoteParentFolder");
   if (parentFolderId) {
     notebookSelect.value = parentFolderId;
   }
@@ -134,17 +180,17 @@ async function initOptions() {
   btnRefreshNotebooks.addEventListener("click", refreshNotebooks);
 
   // Try to obtain the settings from local storage. If not possible, fall back to the defaults.
-  for (setting in default_map) {
-    const currentValue = await common.getSetting(setting);
+  for (const setting in default_map) {
+    const currentValue = await getSetting(setting);
     // 'false' is a valid value. Only check for 'null' and 'undefined'.
     const newValue = currentValue != null ? currentValue : default_map[setting];
     await browser.storage.local.set({ [setting]: newValue });
   }
 
   // Set values of the UI
-  for (setting in default_map) {
-    const element = document.getElementById(setting);
-    const value = await common.getSetting(setting);
+  for (const setting in default_map) {
+    const element = document.getElementById(setting) as HTMLInputElement;
+    const value = await getSetting(setting);
     if (element.type === "checkbox") {
       element.checked = value;
     } else {

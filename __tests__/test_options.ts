@@ -1,14 +1,15 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 const html = fs.readFileSync(path.resolve(__dirname, "../dist/options.html"));
 
-const { browser } = require("browser");
+// TODO: Navigating to __mocks__ shouldn't be needed.
+import { browser } from "../__mocks__/browser";
 
-const { JSDOM } = require("jsdom");
+import { JSDOM } from "jsdom";
 
 jest.dontMock("fs");
 
-let dom;
+let dom: any;
 
 describe("options", function () {
   beforeAll((done) => {
@@ -18,6 +19,7 @@ describe("options", function () {
       // https://github.com/jsdom/jsdom/issues/3023#issuecomment-883585057
       url: `file://${__dirname}/../dist/options.html`,
     });
+    // @ts-ignore
     global.browser = browser;
     dom.window.browser = browser;
 

@@ -3,9 +3,8 @@
 # install dependencies
 npm install
 
-# bundle js modules
-npx browserify src/common.js src/background.js -o dist/background.js
-npx browserify src/common.js src/options.js -o dist/options.js
+# transpile ts modules
+npx tsc
 
 # Copy html to the correct folder.
 cp src/*.html dist
