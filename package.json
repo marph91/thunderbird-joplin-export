@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "browserify": "^17.0.0",
+    "tsify": "^5.0.4",
     "typescript": "^4.6.3"
   },
   "devDependencies": {
@@ -13,7 +15,9 @@
     "ts-jest": "^27.1.4"
   },
   "scripts": {
-    "test": "npx tsc && cp src/options.html dist && jest"
+    "compile-options": "npx browserify src/options.ts -p tsify -o dist/options.js",
+    "copy-html": "cp src/*.html dist",
+    "test": "npm run -s compile-options && npm run -s copy-html && jest"
   },
   "jest": {
     "preset": "ts-jest"

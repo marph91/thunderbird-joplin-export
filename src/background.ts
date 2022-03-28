@@ -240,7 +240,5 @@ async function processMail(mailHeader: any) {
 
 browser.browserAction.onClicked.addListener(handleJoplinButton);
 
-// Only needed for testing. Use this syntax to get "module.exports",
-// which is valid in the plugin.
-// See: https://stackoverflow.com/a/33405751/7410886
-export = { handleJoplinButton, processMail };
+// Only needed for testing.
+export { handleJoplinButton, processMail };
