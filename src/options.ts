@@ -1,34 +1,6 @@
-/// TODO: Common functions. For now duplicated in background.js and options.js.
-/// Effort and time cost for bundling are too high.
+import { generateUrl, getSetting } from "./common";
 
-// TODO: Why isn't this working even when the "dom" lib is enabled in tsconfig?
 declare const browser: any;
-
-async function generateUrl(path: string, query: Array<string> = []) {
-  // Create a valid URL to access the Joplin API.
-  // I. e. add base URL and token.
-  const { joplinScheme, joplinHost, joplinPort, joplinToken } =
-    await browser.storage.local.get([
-      "joplinScheme",
-      "joplinHost",
-      "joplinPort",
-      "joplinToken",
-    ]);
-  // TODO: Does this modify the original array, like in python?
-  query.push(`token=${joplinToken}`);
-  return `${joplinScheme}://${joplinHost}:${joplinPort}/${path}?${query.join(
-    "&"
-  )}`;
-}
-
-async function getSetting(name: string) {
-  // Convenience wrapper to get a setting from local storage.
-  // @ts-ignore
-  return (await browser.storage.local.get(name))[name];
-}
-
-/////
-
 declare const btnSave: HTMLButtonElement;
 declare const btnRefreshNotebooks: HTMLButtonElement;
 

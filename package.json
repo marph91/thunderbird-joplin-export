@@ -15,7 +15,7 @@
     "ts-jest": "^27.1.4"
   },
   "scripts": {
-    "compile-options": "npx browserify src/options.ts -p tsify -o dist/options.js",
+    "compile-options": "npx browserify src/common.ts src/options.ts -p tsify -o dist/options.js",
     "copy-html": "cp src/*.html dist",
     "test": "npm run -s compile-options && npm run -s copy-html && jest"
   },

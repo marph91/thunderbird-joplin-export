@@ -4,8 +4,8 @@
 npm install
 
 # transpile ts modules
-npx browserify src/background.ts -p tsify -o dist/background.js
-npx browserify src/options.ts -p tsify -o dist/options.js
+npx browserify src/common.ts src/background.ts -p tsify -o dist/background.js
+npx browserify src/common.ts src/options.ts -p tsify -o dist/options.js
 
 # Copy html to the correct folder.
 cp src/*.html dist
