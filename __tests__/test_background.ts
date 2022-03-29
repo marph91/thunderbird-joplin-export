@@ -1,21 +1,24 @@
-const express = require("express");
-const fetch = require("node-fetch");
+import express from "express";
+import fetch from "node-fetch";
 
-const { browser } = require("browser");
+// TODO: Navigating to __mocks__ shouldn't be needed.
+import { browser } from "../__mocks__/browser";
+// @ts-ignore
 global.browser = browser;
 
 const { processMail, handleJoplinButton } = require("../src/background");
 
 // Replace the javascript fetch with nodejs fetch.
+// @ts-ignore
 global.fetch = jest.fn(fetch);
 
 // Simple test server. Will receive the request that should go to Joplin.
 let app = express();
-let server;
-let requests;
+let server: any;
+let requests: any;
 
 // Capture all console log output.
-console.log = jest.fn();
+console.log = <jest.Mock>jest.fn();
 
 beforeAll(() => {
   // https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener
@@ -163,11 +166,13 @@ describe("process mail", () => {
       });
 
       // Finally check the console output.
+      // @ts-ignore
       expect(console.log.mock.calls.length).toBe(1);
       const message =
         resultFormat === "text/html"
           ? "Sending data in HTML format."
           : "Sending data in plain format.";
+      // @ts-ignore
       expect(console.log.mock.calls[0][0]).toBe(message);
     }
   );

@@ -1,14 +1,17 @@
 // Mock all browser access, since we aren't in the frontend.
-const browser = {
+
+type StorageEntry = Record<string, any>;
+
+export const browser = {
   storage: {
     local: {
-      data: {},
-      get: async (nameOrNames) => {
+      data: <StorageEntry>{},
+      get: async (nameOrNames: string | Array<string>) => {
         switch (typeof nameOrNames) {
           case "string":
             return { [nameOrNames]: browser.storage.local.data[nameOrNames] };
           case "object":
-            result = {};
+            const result = <StorageEntry>{};
             for (const name of nameOrNames) {
               result[name] = browser.storage.local.data[name];
             }
@@ -17,7 +20,7 @@ const browser = {
             throw Error(`Unsupported type: ${typeof nameOrNames}.`);
         }
       },
-      set: async (settings) => {
+      set: async (settings: StorageEntry) => {
         for (const [name, value] of Object.entries(settings)) {
           browser.storage.local.data[name] = value;
         }
@@ -26,8 +29,8 @@ const browser = {
   },
   browserAction: {
     onClicked: { addListener: jest.fn() },
-    icon: undefined,
-    setIcon: (icon) => {
+    icon: <any>undefined,
+    setIcon: (icon: { path: string }) => {
       browser.browserAction.icon = icon.path;
     },
   },
@@ -40,5 +43,3 @@ const browser = {
     getAttachmentFile: jest.fn(),
   },
 };
-
-module.exports = { browser };

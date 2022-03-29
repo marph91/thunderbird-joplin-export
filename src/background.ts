@@ -1,18 +1,20 @@
-const common = require("./common");
+import { generateUrl, getSetting } from "./common";
 
-async function handleJoplinButton(tab, info) {
+declare const browser: any;
+
+async function handleJoplinButton(tab: any, info: any) {
   // The icon will be red during transmission and if anything failed.
   browser.browserAction.setIcon({ path: "../images/logo_96_red.png" });
 
   // Check for Joplin API token. If it isn't present, we can skip everything else.
-  const apiToken = await common.getSetting("joplinToken");
+  const apiToken = await getSetting("joplinToken");
   if (!apiToken) {
     throw new Error("API token not set. Please specify it at the settings.");
   }
 
   const mailHeaders = await browser.messageDisplay.getDisplayedMessages(tab.id);
   const results = await Promise.all(mailHeaders.map(processMail));
-  for (error of results) {
+  for (const error of results) {
     if (error) {
       console.error(error);
     }
@@ -24,7 +26,7 @@ async function handleJoplinButton(tab, info) {
   }
 }
 
-async function processMail(mailHeader) {
+async function processMail(mailHeader: any) {
   //////////////////////////////////////////////////
   // Mail content
   //////////////////////////////////////////////////
@@ -35,7 +37,10 @@ async function processMail(mailHeader) {
   }
 
   // Body
-  function getMailContent(mail, contentType, content = "") {
+  type ContentType = "text/html" | "text/plain";
+  type Mail = { body: string; contentType: ContentType; parts: Array<Mail> };
+
+  function getMailContent(mail: Mail, contentType: ContentType, content = "") {
     if (!mail) {
       return content;
     }
@@ -43,7 +48,7 @@ async function processMail(mailHeader) {
       content += mail.body;
     }
     if (mail.parts) {
-      for (let part of mail.parts) {
+      for (const part of mail.parts) {
         content = getMailContent(part, contentType, content);
       }
     }
@@ -60,13 +65,18 @@ async function processMail(mailHeader) {
   }
 
   // Add a note with the email content
-  let data = {
+  let data: {
+    title: string;
+    parent_id: string;
+    body?: string;
+    body_html?: string;
+  } = {
     title: mailHeader.subject + " from " + mailHeader.author,
-    parent_id: (await common.getSetting("joplinNoteParentFolder")) || "",
+    parent_id: (await getSetting("joplinNoteParentFolder")) || "",
   };
 
   // If the preferred content type doesn't contain data, fall back to the other content type.
-  const contentType = await common.getSetting("joplinNoteFormat");
+  const contentType = await getSetting("joplinNoteFormat");
   if ((contentType === "text/html" && mailBodyHtml) || !mailBodyPlain) {
     console.log("Sending data in HTML format.");
     data["body_html"] = mailBodyHtml;
@@ -77,8 +87,8 @@ async function processMail(mailHeader) {
   }
 
   // https://javascript.info/fetch
-  url = await common.generateUrl("notes", ["fields=id,body"]);
-  response = await fetch(url, {
+  let url = await generateUrl("notes", ["fields=id,body"]);
+  let response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -93,17 +103,17 @@ async function processMail(mailHeader) {
   //////////////////////////////////////////////////
 
   // User specified tags are stored in a comma separated string.
-  const userTagsString = await common.getSetting("joplinNoteTags");
+  const userTagsString = await getSetting("joplinNoteTags");
   let tags = userTagsString ? userTagsString.split(",") : [];
 
-  const includeMailTags = await common.getSetting("joplinNoteTagsFromEmail");
+  const includeMailTags = await getSetting("joplinNoteTagsFromEmail");
   if (includeMailTags) {
     tags = tags.concat(mailHeader.tags);
   }
 
-  for (tag of tags) {
+  for (const tag of tags) {
     // Check whether tag exists already
-    url = await common.generateUrl("search", [`query=${tag}`, "type=tag"]);
+    url = await generateUrl("search", [`query=${tag}`, "type=tag"]);
     response = await fetch(url);
     if (!response.ok) {
       console.warn(`Search for tag failed: ${await response.text()}`);
@@ -115,7 +125,7 @@ async function processMail(mailHeader) {
     let tagId;
     if (matchingTags.length === 0) {
       // create new tag
-      url = await common.generateUrl("tags");
+      url = await generateUrl("tags");
       response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -136,7 +146,7 @@ async function processMail(mailHeader) {
     }
 
     // attach tag to note
-    url = await common.generateUrl(`tags/${tagId}/notes`);
+    url = await generateUrl(`tags/${tagId}/notes`);
     response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -152,7 +162,7 @@ async function processMail(mailHeader) {
   // Attachments
   //////////////////////////////////////////////////
 
-  const howToHandleAttachments = await common.getSetting("joplinAttachments");
+  const howToHandleAttachments = await getSetting("joplinAttachments");
   if (howToHandleAttachments === "ignore") {
     return null;
   }
@@ -161,7 +171,7 @@ async function processMail(mailHeader) {
   const attachments = await browser.messages.listAttachments(mailHeader.id);
   if (attachments && attachments.length != 0) {
     let attachmentString = "\n\n**Attachments**: ";
-    for (attachment of attachments) {
+    for (const attachment of attachments) {
       const attachmentFile = await browser.messages.getAttachmentFile(
         mailHeader.id,
         attachment.partName
@@ -171,7 +181,7 @@ async function processMail(mailHeader) {
       formData.append("data", attachmentFile);
       formData.append("props", JSON.stringify({ title: attachment.name }));
       // https://joplinapp.org/api/references/rest_api/#post-resources
-      url = await common.generateUrl("resources");
+      url = await generateUrl("resources");
       response = await fetch(url, {
         method: "POST",
         body: formData,
@@ -186,7 +196,7 @@ async function processMail(mailHeader) {
 
     // Always operate on body, even if previously used body_html.
     // TODO: Check is this has side effects.
-    url = await common.generateUrl(`notes/${noteInfo["id"]}`);
+    url = await generateUrl(`notes/${noteInfo["id"]}`);
     response = await fetch(url, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -203,8 +213,5 @@ async function processMail(mailHeader) {
 
 browser.browserAction.onClicked.addListener(handleJoplinButton);
 
-module.exports = {
-  // Only needed for testing.
-  handleJoplinButton,
-  processMail,
-};
+// Only needed for testing.
+export { handleJoplinButton, processMail };
