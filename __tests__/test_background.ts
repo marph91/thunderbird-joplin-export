@@ -25,6 +25,37 @@ beforeAll(() => {
   // https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener
   server = app.listen(41142);
   app.use(express.json()); // allow easy access of request.body
+
+  // TODO: How to flexibly assign and delete routes/middlewares?
+  // https://stackoverflow.com/a/28369539/7410886
+  app.use((req, res, next) => {
+    requests.push(req);
+
+    if (req.query.token !== "validToken") {
+      // TODO
+      res.status(401).send();
+    }
+
+    let returnData: any;
+    switch (req.path) {
+      case "/notes":
+        // console.log(req.body);
+        returnData = { items: [] };
+        break;
+      case "/search":
+        // console.log(req.query);
+        returnData = { items: [] };
+        break;
+      case "/tags":
+        // console.log(req.body);
+        returnData = { items: [] };
+        break;
+      default:
+      //console.log(req.path);
+    }
+
+    res.status(200).send(JSON.stringify(returnData));
+  });
 });
 
 beforeEach(() => {
@@ -35,7 +66,7 @@ beforeEach(() => {
     joplinScheme: "http",
     joplinHost: "127.0.0.1",
     joplinPort: 41142,
-    joplinToken: "xyz",
+    joplinToken: "validToken",
 
     joplinNoteParentFolder: "arbitrary folder",
     joplinNoteFormat: "text/html",
@@ -58,6 +89,20 @@ describe("handle button", () => {
     expect(handleJoplinButton({ id: 0 }, {})).rejects.toThrow(
       "API token not set. Please specify it at the settings."
     );
+    expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
+  });
+
+  test("invalid API token", async () => {
+    await browser.storage.local.set({ joplinToken: "invalidToken" });
+    browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
+      { id: 0 },
+    ]);
+    await handleJoplinButton({ id: 0 }, {});
+
+    // @ts-ignore
+    expect(console.error.mock.calls.length).toBe(1);
+    // @ts-ignore
+    expect(console.error.mock.calls[0][0]).toMatch(/^Failed to create note:/);
     expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
   });
 
@@ -120,14 +165,7 @@ describe("process mail", () => {
 
       await browser.storage.local.set({ joplinNoteFormat: preferredFormat });
 
-      // TODO: How to flexibly assign and delete routes/middlewares?
-      // https://stackoverflow.com/a/28369539/7410886
-      app.use((req, res, next) => {
-        requests.push(req);
-        res.status(200).send(JSON.stringify({}));
-      });
-
-      browser.messages.getFull.mockResolvedValue({
+      browser.messages.getFull.mockResolvedValueOnce({
         parts: [
           {
             contentType: "text/html",
@@ -180,7 +218,45 @@ describe("process mail", () => {
 });
 
 describe("process tag", () => {
-  // TODO
+  test.each`
+    emailTags       | includeEmailTags | customTags
+    ${[]}           | ${false}         | ${""}
+    ${[]}           | ${false}         | ${"customTag"}
+    ${[]}           | ${true}          | ${""}
+    ${[]}           | ${true}          | ${"customTag"}
+    ${["emailTag"]} | ${false}         | ${""}
+    ${["emailTag"]} | ${false}         | ${"customTag"}
+    ${["emailTag"]} | ${true}          | ${""}
+    ${["emailTag"]} | ${true}          | ${"customTag"}
+  `(
+    "emailTags: $emailTags | includeEmailTags: $includeEmailTags | customTags: $customTags",
+    async ({ emailTags, includeEmailTags, customTags }) => {
+      await browser.storage.local.set({
+        joplinToken: "validToken",
+        joplinNoteTags: customTags,
+        joplinNoteTagsFromEmail: includeEmailTags,
+      });
+
+      const result = await processMail({ id: 0, tags: emailTags });
+      expect(result).toBe(null);
+
+      // 1 request to create the note.
+      // 3 requests per tag: get tags, create tag, attach tag to note
+      expect(requests.length).toBe(
+        1 +
+          3 * Number(customTags != "") +
+          3 * Number(includeEmailTags && emailTags.length > 0)
+      );
+    }
+  );
+
+  test("tag already existent", async () => {
+    // TODO
+  });
+
+  test("too many tags existent", async () => {
+    // TODO
+  });
 });
 
 describe("process attachment", () => {
