@@ -19,6 +19,7 @@ let requests: any;
 
 // Capture all console output.
 console.log = <jest.Mock>jest.fn();
+console.warn = <jest.Mock>jest.fn();
 console.error = <jest.Mock>jest.fn();
 
 beforeAll(() => {
@@ -43,8 +44,23 @@ beforeAll(() => {
         returnData = { items: [] };
         break;
       case "/search":
-        // console.log(req.query);
-        returnData = { items: [] };
+        if (req.query.type === "tag") {
+          switch (req.query.query) {
+            case "existentTag":
+              returnData = { items: [{ id: "arbitraryId" }] };
+              break;
+            case "multipleTags":
+              returnData = {
+                items: [
+                  { id: "arbitraryId1", title: "a" },
+                  { id: "arbitraryId2", title: "b" },
+                ],
+              };
+              break;
+            default:
+              returnData = { items: [] };
+          }
+        }
         break;
       case "/tags":
         // console.log(req.body);
@@ -232,7 +248,6 @@ describe("process tag", () => {
     "emailTags: $emailTags | includeEmailTags: $includeEmailTags | customTags: $customTags",
     async ({ emailTags, includeEmailTags, customTags }) => {
       await browser.storage.local.set({
-        joplinToken: "validToken",
         joplinNoteTags: customTags,
         joplinNoteTagsFromEmail: includeEmailTags,
       });
@@ -251,11 +266,33 @@ describe("process tag", () => {
   );
 
   test("tag already existent", async () => {
-    // TODO
+    await browser.storage.local.set({ joplinNoteTags: "existentTag" });
+
+    const result = await processMail({ id: 0, tags: [] });
+    expect(result).toBe(null);
+
+    // 1 request to create the note.
+    // 1 request for searching the tag.
+    // 1 request for attaching the tag to the note.
+    expect(requests.length).toBe(3);
   });
 
   test("too many tags existent", async () => {
-    // TODO
+    await browser.storage.local.set({ joplinNoteTags: "multipleTags" });
+
+    const result = await processMail({ id: 0, tags: [] });
+    expect(result).toBe(null);
+
+    // 1 request to create the note.
+    // 1 request for searching the tag.
+    expect(requests.length).toBe(2);
+
+    // @ts-ignore
+    expect(console.warn.mock.calls.length).toBe(1);
+    // @ts-ignore
+    expect(console.warn.mock.calls[0][0]).toBe(
+      'Too many matching tags for "multipleTags": a, b'
+    );
   });
 });
 
