@@ -55,7 +55,7 @@ describe("handle button", () => {
   test("API token not set", async () => {
     await browser.storage.local.set({ joplinToken: undefined });
 
-    expect(handleJoplinButton()).rejects.toThrow(
+    expect(handleJoplinButton({ id: 0 }, {})).rejects.toThrow(
       "API token not set. Please specify it at the settings."
     );
     expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
@@ -69,7 +69,7 @@ describe("handle button", () => {
         return [];
       }
     );
-    await handleJoplinButton({ id: 0 });
+    await handleJoplinButton({ id: 0 }, {});
     // blue when finished successfully
     expect(browser.browserAction.icon).toBe("../images/logo_96_blue.png");
   });
@@ -77,12 +77,12 @@ describe("handle button", () => {
 
 describe("process mail", () => {
   test("empty header", async () => {
-    const result = await processMail();
+    const result = await processMail(undefined);
     expect(result).toBe("Mail header is empty");
   });
 
   test("undefined body", async () => {
-    browser.messages.getFull.mockResolvedValue(undefined);
+    browser.messages.getFull.mockResolvedValueOnce(undefined);
 
     // Arbitrary id, since we mock the mail anyway.
     const result = await processMail({ id: 0 });
@@ -90,7 +90,7 @@ describe("process mail", () => {
   });
 
   test("empty body", async () => {
-    browser.messages.getFull.mockResolvedValue({});
+    browser.messages.getFull.mockResolvedValueOnce({});
 
     const result = await processMail({ id: 0 });
     expect(result).toBe("Mail body is empty");
