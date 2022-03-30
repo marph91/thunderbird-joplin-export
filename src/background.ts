@@ -141,7 +141,12 @@ async function processMail(mailHeader: any) {
       // use id of the existing tag
       tagId = matchingTags[0]["id"];
     } else {
-      console.warn(`Too many matching tags "${matchingTags}" for "${tag}"`);
+      const matchingTagsString = matchingTags
+        .map((e: { id: string; title: string }) => e.title)
+        .join(", ");
+      console.warn(
+        `Too many matching tags for "${tag}": ${matchingTagsString}`
+      );
       continue;
     }
 
