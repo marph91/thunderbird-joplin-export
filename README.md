@@ -4,6 +4,7 @@ Easily export your thunderbird emails to Joplin.
 
 [![build](https://github.com/marph91/thunderbird-joplin-export/actions/workflows/build.yml/badge.svg)](https://github.com/marph91/thunderbird-joplin-export/actions/workflows/build.yml)
 [![test](https://github.com/marph91/thunderbird-joplin-export/actions/workflows/test.yml/badge.svg)](https://github.com/marph91/thunderbird-joplin-export/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/marph91/thunderbird-joplin-export/branch/master/graph/badge.svg?token=YZYEW7C1VM)](https://codecov.io/gh/marph91/thunderbird-joplin-export)
 
 ## Features
 
