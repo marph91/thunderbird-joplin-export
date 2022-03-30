@@ -11,3 +11,7 @@ jobs:
         run: npm install
       - name: Run the tests
         run: npm test -- --coverage
+      - name: Publish Code Coverage Results
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage/clover.xml
