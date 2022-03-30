@@ -76,7 +76,7 @@ beforeAll(() => {
 
     if (req.query.token !== "validToken") {
       // TODO
-      res.status(401).send();
+      res.status(401).send("Invalid token");
     }
 
     let returnData: any;
@@ -148,6 +148,12 @@ describe("handle button", () => {
       "API token not set. Please specify it at the settings."
     );
     expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
+
+    expectConsole({
+      log: 0,
+      warn: 0,
+      error: 0,
+    });
   });
 
   test("invalid API token", async () => {
@@ -157,11 +163,13 @@ describe("handle button", () => {
     ]);
     await handleJoplinButton({ id: 0 }, {});
 
-    // @ts-ignore
-    expect(console.error.mock.calls.length).toBe(1);
-    // @ts-ignore
-    expect(console.error.mock.calls[0][0]).toMatch(/^Failed to create note:/);
     expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
+
+    expectConsole({
+      log: 1,
+      warn: 0,
+      error: ["Failed to create note: Invalid token"],
+    });
   });
 
   test("Correct icon color", async () => {
@@ -169,12 +177,19 @@ describe("handle button", () => {
       async () => {
         // red during processing
         expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
-        return [];
+        return [{ id: 0 }];
       }
     );
     await handleJoplinButton({ id: 0 }, {});
+
     // blue when finished successfully
     expect(browser.browserAction.icon).toBe("../images/logo_96_blue.png");
+
+    expectConsole({
+      log: 1,
+      warn: 0,
+      error: 0,
+    });
   });
 });
 
