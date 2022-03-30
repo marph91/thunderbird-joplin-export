@@ -2,7 +2,7 @@ import { generateUrl, getSetting } from "./common";
 
 declare const browser: any;
 
-async function handleJoplinButton(tab: any, info: any) {
+async function handleJoplinButton(tab: { id: number }, info: any) {
   // The icon will be red during transmission and if anything failed.
   browser.browserAction.setIcon({ path: "../images/logo_96_red.png" });
 

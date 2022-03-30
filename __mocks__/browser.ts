@@ -38,7 +38,17 @@ export const browser = {
     getDisplayedMessages: jest.fn(),
   },
   messages: {
-    getFull: jest.fn(),
+    getFull: jest.fn(async () => {
+      return <any>{
+        parts: [
+          {
+            contentType: "text/html",
+            body: "test content",
+            parts: [],
+          },
+        ],
+      };
+    }),
     listAttachments: jest.fn(),
     getAttachmentFile: jest.fn(),
   },

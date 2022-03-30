@@ -10,6 +10,16 @@ import { JSDOM } from "jsdom";
 jest.dontMock("fs");
 
 let dom: any;
+const setting_ids = [
+  "joplinScheme",
+  "joplinHost",
+  "joplinPort",
+  "joplinToken",
+  "joplinNoteFormat",
+  "joplinAttachments",
+  "joplinNoteTags",
+  "joplinNoteTagsFromEmail",
+];
 
 describe("options", function () {
   beforeAll((done) => {
@@ -35,32 +45,12 @@ describe("options", function () {
   });
 
   test("settings exist", () => {
-    const setting_ids = [
-      "joplinScheme",
-      "joplinHost",
-      "joplinPort",
-      "joplinToken",
-      "joplinNoteFormat",
-      "joplinAttachments",
-      "joplinNoteTags",
-      "joplinNoteTagsFromEmail",
-    ];
     for (const id of setting_ids) {
       expect(dom.window.document.getElementById(id)).toBeTruthy();
     }
   });
 
   test("local cache init", () => {
-    const setting_ids = [
-      "joplinScheme",
-      "joplinHost",
-      "joplinPort",
-      "joplinToken",
-      "joplinNoteFormat",
-      "joplinAttachments",
-      "joplinNoteTags",
-      "joplinNoteTagsFromEmail",
-    ];
     expect(Object.keys(browser.storage.local.data)).toEqual(setting_ids);
   });
 

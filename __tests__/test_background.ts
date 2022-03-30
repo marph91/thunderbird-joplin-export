@@ -6,7 +6,7 @@ import { browser } from "../__mocks__/browser";
 // @ts-ignore
 global.browser = browser;
 
-const { processMail, handleJoplinButton } = require("../src/background");
+import { processMail, handleJoplinButton } from "../src/background";
 
 // Replace the javascript fetch with nodejs fetch.
 // @ts-ignore
@@ -17,8 +17,9 @@ let app = express();
 let server: any;
 let requests: any;
 
-// Capture all console log output.
+// Capture all console output.
 console.log = <jest.Mock>jest.fn();
+console.error = <jest.Mock>jest.fn();
 
 beforeAll(() => {
   // https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener
