@@ -54,8 +54,28 @@ describe("options", function () {
     expect(Object.keys(browser.storage.local.data)).toEqual(setting_ids);
   });
 
-  test("save button", async () => {
+  test("save settings", async () => {
+    // Modify some arbitrary settings and check if they are in the local storage after saving.
+    const settings = {
+      joplinScheme: "https",
+      joplinToken: "abc",
+      joplinAttachments: "ignore",
+      joplinNoteTagsFromEmail: false,
+    };
+
+    for (const [setting_name, setting_value] of Object.entries(settings)) {
+      const element = dom.window.document.getElementById(setting_name);
+      if (typeof setting_value === "boolean") {
+        element.checked = setting_value;
+      } else {
+        element.value = setting_value;
+      }
+    }
     const saveButton = dom.window.document.getElementById("btnSave");
     await saveButton.dispatchEvent(new dom.window.MouseEvent("click"));
+
+    expect(browser.storage.local.data).toEqual(
+      expect.objectContaining(settings)
+    );
   });
 });
