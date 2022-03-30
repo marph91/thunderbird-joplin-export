@@ -14,4 +14,4 @@ jobs:
       - name: Publish Code Coverage Results
         uses: codecov/codecov-action@v2
         with:
-          files: ./coverage/clover.xml
+          files: ./coverage/coverage-final.json
