@@ -22,6 +22,48 @@ console.log = <jest.Mock>jest.fn();
 console.warn = <jest.Mock>jest.fn();
 console.error = <jest.Mock>jest.fn();
 
+// https://dev.to/chrismilson/zip-iterator-in-typescript-ldm
+type Iterableify<T> = { [K in keyof T]: Iterable<T[K]> };
+function* zip<T extends Array<any>>(...toZip: Iterableify<T>): Generator<T> {
+  // Get iterators for all of the iterables.
+  const iterators = toZip.map((i) => i[Symbol.iterator]());
+
+  while (true) {
+    // Advance all of the iterators.
+    const results = iterators.map((i) => i.next());
+
+    // If any of the iterators are done, we should stop.
+    if (results.some(({ done }) => done)) {
+      break;
+    }
+
+    // We can assert the yield type, since we know none
+    // of the iterators are done.
+    yield results.map(({ value }) => value) as T;
+  }
+}
+
+const expectConsole = (expected: { [Key: string]: Array<string> | number }) => {
+  // Check whether the console output is as expected.
+
+  for (const [method, lengthOrContent] of Object.entries(expected)) {
+    // @ts-ignore
+    const actual = <Array<Array<String>>>console[method].mock.calls;
+    if (typeof lengthOrContent === "number") {
+      // Only check number of calls.
+      expect(actual.length).toBe(lengthOrContent);
+    } else {
+      // Check content of calls.
+      for (const [actualOutput, expectedOutput] of zip(
+        actual,
+        lengthOrContent
+      )) {
+        expect(actualOutput[0]).toBe(expectedOutput);
+      }
+    }
+  }
+};
+
 beforeAll(() => {
   // https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener
   server = app.listen(41142);
@@ -140,6 +182,12 @@ describe("process mail", () => {
   test("empty header", async () => {
     const result = await processMail(undefined);
     expect(result).toBe("Mail header is empty");
+
+    expectConsole({
+      log: 0,
+      warn: 0,
+      error: 0,
+    });
   });
 
   test("undefined body", async () => {
@@ -148,6 +196,12 @@ describe("process mail", () => {
     // Arbitrary id, since we mock the mail anyway.
     const result = await processMail({ id: 0 });
     expect(result).toBe("Mail body is empty");
+
+    expectConsole({
+      log: 0,
+      warn: 0,
+      error: 0,
+    });
   });
 
   test("empty body", async () => {
@@ -155,6 +209,12 @@ describe("process mail", () => {
 
     const result = await processMail({ id: 0 });
     expect(result).toBe("Mail body is empty");
+
+    expectConsole({
+      log: 0,
+      warn: 0,
+      error: 0,
+    });
   });
 
   test.each`
@@ -221,14 +281,15 @@ describe("process mail", () => {
       });
 
       // Finally check the console output.
-      // @ts-ignore
-      expect(console.log.mock.calls.length).toBe(1);
       const message =
         resultFormat === "text/html"
           ? "Sending data in HTML format."
           : "Sending data in plain format.";
-      // @ts-ignore
-      expect(console.log.mock.calls[0][0]).toBe(message);
+      expectConsole({
+        log: [message],
+        warn: 0,
+        error: 0,
+      });
     }
   );
 });
@@ -262,6 +323,12 @@ describe("process tag", () => {
           3 * Number(customTags != "") +
           3 * Number(includeEmailTags && emailTags.length > 0)
       );
+
+      expectConsole({
+        log: 1,
+        warn: 0,
+        error: 0,
+      });
     }
   );
 
@@ -275,6 +342,12 @@ describe("process tag", () => {
     // 1 request for searching the tag.
     // 1 request for attaching the tag to the note.
     expect(requests.length).toBe(3);
+
+    expectConsole({
+      log: 1,
+      warn: 0,
+      error: 0,
+    });
   });
 
   test("too many tags existent", async () => {
@@ -287,12 +360,11 @@ describe("process tag", () => {
     // 1 request for searching the tag.
     expect(requests.length).toBe(2);
 
-    // @ts-ignore
-    expect(console.warn.mock.calls.length).toBe(1);
-    // @ts-ignore
-    expect(console.warn.mock.calls[0][0]).toBe(
-      'Too many matching tags for "multipleTags": a, b'
-    );
+    expectConsole({
+      log: 1,
+      warn: ['Too many matching tags for "multipleTags": a, b'],
+      error: 0,
+    });
   });
 });
 
