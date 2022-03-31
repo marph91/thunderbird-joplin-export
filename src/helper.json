@@ -1,0 +1,14 @@
+[
+  {
+    "namespace": "helper",
+    "functions": [
+      {
+        "name": "getSelectedText",
+        "type": "function",
+        "description": "Get the currently selected text.",
+        "async": true,
+        "parameters": []
+      }
+    ]
+  }
+]
