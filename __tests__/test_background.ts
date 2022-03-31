@@ -75,7 +75,6 @@ beforeAll(() => {
     requests.push(req);
 
     if (req.query.token !== "validToken") {
-      // TODO
       res.status(401).send("Invalid token");
     }
 
@@ -83,6 +82,9 @@ beforeAll(() => {
     switch (req.path) {
       case "/notes":
         // console.log(req.body);
+        returnData = { items: [] };
+        break;
+      case "/resources":
         returnData = { items: [] };
         break;
       case "/search":
@@ -384,5 +386,51 @@ describe("process tag", () => {
 });
 
 describe("process attachment", () => {
-  // TODO
+  beforeAll(() => {
+    // FormData is not available: https://stackoverflow.com/a/59726560/7410886
+    // It works, but not sure how to resolve the typescript issues.
+    function FormDataMock() {
+      // @ts-ignore
+      this.append = jest.fn();
+    }
+    // @ts-ignore
+    global.FormData = FormDataMock;
+  });
+
+  test.each`
+    attachments | handleAttachments
+    ${[]}       | ${"attach"}
+    ${[]}       | ${"ignore"}
+    ${["foo"]}  | ${"attach"}
+    ${["foo"]}  | ${"ignore"}
+  `(
+    "attachments: $attachments | handleAttachments: $handleAttachments",
+    async ({ attachments, handleAttachments }) => {
+      await browser.storage.local.set({ joplinAttachments: handleAttachments });
+
+      // Don't use once, since the functions gets only called in specific circumstances.
+      browser.messages.listAttachments.mockResolvedValue(
+        attachments.map((a: string) => {
+          return { name: a, partName: a };
+        })
+      );
+      browser.messages.getAttachmentFile.mockResolvedValue(attachments);
+
+      const result = await processMail({ id: 0 });
+      expect(result).toBe(null);
+
+      // 1 request to create the note.
+      // 1 request for creating the attachment (= resource in joplin).
+      // 1 request for attaching the resource to the note.
+      expect(requests.length).toBe(
+        1 + 2 * Number(handleAttachments === "attach" && attachments.length > 0)
+      );
+
+      expectConsole({
+        log: 1,
+        warn: 0,
+        error: 0,
+      });
+    }
+  );
 });
