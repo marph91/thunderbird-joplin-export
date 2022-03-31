@@ -52,4 +52,7 @@ export const browser = {
     listAttachments: jest.fn(),
     getAttachmentFile: jest.fn(),
   },
+  // Added by experiments:
+  // https://webextension-api.thunderbird.net/en/91/how-to/experiments.html
+  helper: { getSelectedText: jest.fn(async () => "") },
 };
