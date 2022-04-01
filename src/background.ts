@@ -12,7 +12,7 @@ async function handleHotkey(command: string) {
       currentWindow: true,
     });
     // TODO: Is it fine to always access the first tab?
-    handleJoplinButton(activeTabs[0], {});
+    await handleJoplinButton(activeTabs[0], {});
   }
 }
 
