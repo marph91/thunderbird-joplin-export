@@ -19,6 +19,14 @@
     "default_title": "Joplin Export",
     "default_icon": "images/logo_96_blue.png"
   },
+  "commands": {
+    "export_to_joplin": {
+      "suggested_key": {
+        "default": "Ctrl+Alt+J"
+      },
+      "description": "Export emails by hotkey."
+    }
+  },
   // https://developer.thunderbird.net/add-ons/updating/tb78#replacing-options
   // https://github.com/thundernest/sample-extensions/blob/77f79f986e6005c07008d974fa629e258dcceb80/managedStorage/manifest.json
   "options_ui": {

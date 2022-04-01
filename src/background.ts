@@ -1,12 +1,28 @@
 import { generateUrl, getSetting } from "./common";
 
 declare const browser: any;
+declare const messenger: any;
+
+async function handleHotkey(command: string) {
+  // Called if hotkey is pressed.
+
+  if (command === "export_to_joplin") {
+    const activeTabs = await messenger.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    // TODO: Is it fine to always access the first tab?
+    handleJoplinButton(activeTabs[0], {});
+  }
+}
 
 function onlyWhitespace(str: string) {
   return str.trim().length === 0;
 }
 
 async function handleJoplinButton(tab: { id: number }, info: any) {
+  // Called after button is clicked or hotkey is pressed.
+
   // The icon will be red during transmission and if anything failed.
   browser.browserAction.setIcon({ path: "../images/logo_96_red.png" });
 
@@ -230,6 +246,7 @@ async function processMail(mailHeader: any) {
 }
 
 browser.browserAction.onClicked.addListener(handleJoplinButton);
+messenger.commands.onCommand.addListener(handleHotkey);
 
 // Only needed for testing.
-export { handleJoplinButton, processMail, onlyWhitespace };
+export { handleHotkey, handleJoplinButton, processMail, onlyWhitespace };
