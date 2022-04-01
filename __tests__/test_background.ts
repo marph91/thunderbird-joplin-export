@@ -134,6 +134,7 @@ beforeEach(() => {
 
     joplinNoteParentFolder: "arbitrary folder",
     joplinNoteFormat: "text/html",
+    joplinExportAsTodo: false,
     // Try to keep the tests minimal.
     joplinNoteTags: "",
     joplinNoteTagsFromEmail: false,
@@ -299,6 +300,7 @@ describe("process mail", () => {
         [expectedKey]: body,
         parent_id: browser.storage.local.data.joplinNoteParentFolder,
         title: `${subject} from ${author}`,
+        is_todo: 0,
       });
 
       // Finally check the console output.
@@ -314,7 +316,7 @@ describe("process mail", () => {
     }
   );
 
-  test("selection", async () => {
+  test("export selection", async () => {
     const subject = "test subject";
     const author = "test author";
     const body = "test body";
@@ -333,10 +335,27 @@ describe("process mail", () => {
       body: body,
       parent_id: browser.storage.local.data.joplinNoteParentFolder,
       title: `${subject} from ${author}`,
+      is_todo: 0,
     });
 
     expectConsole({
       log: ["Sending selection in plain format."],
+      warn: 0,
+      error: 0,
+    });
+  });
+
+  test("export as todo", async () => {
+    await browser.storage.local.set({ joplinExportAsTodo: true });
+
+    const result = await processMail({ id: 0 });
+
+    expect(result).toBe(null);
+    expect(requests.length).toBe(1);
+    expect(requests[0].body).toEqual(expect.objectContaining({ is_todo: 1 }));
+
+    expectConsole({
+      log: 1,
       warn: 0,
       error: 0,
     });

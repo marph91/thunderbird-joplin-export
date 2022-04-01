@@ -44,11 +44,13 @@ async function processMail(mailHeader: any) {
   let data: {
     title: string;
     parent_id: string;
+    is_todo: number;
     body?: string;
     body_html?: string;
   } = {
     title: mailHeader.subject + " from " + mailHeader.author,
     parent_id: (await getSetting("joplinNoteParentFolder")) || "",
+    is_todo: Number(await getSetting("joplinExportAsTodo")),
   };
 
   // Body
