@@ -2,14 +2,17 @@ import express from "express";
 import fetch from "node-fetch";
 
 // TODO: Navigating to __mocks__ shouldn't be needed.
-import { browser } from "../__mocks__/browser";
+import { browser, messenger } from "../__mocks__/browser";
 // @ts-ignore
 global.browser = browser;
+// @ts-ignore
+global.messenger = messenger;
 
 import {
-  processMail,
-  handleJoplinButton,
+  getAndProcessMessages,
+  handleHotkey,
   onlyWhitespace,
+  processMail,
 } from "../src/background";
 
 // Replace the javascript fetch with nodejs fetch.
@@ -147,11 +150,11 @@ afterAll(() => {
   server.close();
 });
 
-describe("handle button", () => {
+describe("handle button or hotkey", () => {
   test("API token not set", async () => {
     await browser.storage.local.set({ joplinToken: undefined });
 
-    expect(handleJoplinButton({ id: 0 }, {})).rejects.toThrow(
+    expect(getAndProcessMessages({ id: 0 }, {})).rejects.toThrow(
       "API token not set. Please specify it at the settings."
     );
     expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
@@ -168,7 +171,7 @@ describe("handle button", () => {
     browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
       { id: 0 },
     ]);
-    await handleJoplinButton({ id: 0 }, {});
+    await getAndProcessMessages({ id: 0 }, {});
 
     expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
 
@@ -187,11 +190,27 @@ describe("handle button", () => {
         return [{ id: 0 }];
       }
     );
-    await handleJoplinButton({ id: 0 }, {});
+    await getAndProcessMessages({ id: 0 }, {});
 
     // blue when finished successfully
     expect(browser.browserAction.icon).toBe("../images/logo_96_blue.png");
 
+    expectConsole({
+      log: 1,
+      warn: 0,
+      error: 0,
+    });
+  });
+
+  test("export by hotkey", async () => {
+    messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
+    browser.messageDisplay.getDisplayedMessages.mockReturnValueOnce([
+      { id: 1 },
+    ]);
+
+    await handleHotkey("export_to_joplin");
+
+    expect(requests.length).toBe(1);
     expectConsole({
       log: 1,
       warn: 0,

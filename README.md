@@ -9,6 +9,8 @@ Easily export your thunderbird emails to Joplin.
 ## Features
 
 - Export a text selection, a single or multiple emails to Joplin.
+- Export by clicking the button or pressing the hotkey ("Ctrl+Alt+J" by default)
+- Export the email as note or todo.
 - Add tags and attachments from the email.
 
 ## Installation
@@ -37,3 +39,8 @@ What to do when the icon stays red?
 2. Check that the plugin is configured correctly. There is a status field. The status should be "working". Make sure the API token is set correctly.
 3. Check the developer console. Usually it can be opened by pressing "Ctrl + Shift + I" or going to "Extras -> Developer Tools". There should be some error message.
 4. If the previous steps didn't resolve the issue, you can open a github issue or email me.
+
+## Related Projects
+
+- https://github.com/manolitto/joplin-mail-gateway: Add all emails of an account to Joplin.
+- https://github.com/EliasVincent/joplin-email-note: Export notes from Joplin to your email client.
