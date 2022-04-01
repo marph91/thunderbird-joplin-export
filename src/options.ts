@@ -10,6 +10,7 @@ const default_map: { [key: string]: string | number | boolean } = {
   joplinPort: 41184,
   joplinToken: "",
   joplinNoteFormat: "text/html",
+  joplinExportAsTodo: false,
   joplinAttachments: "attach",
   joplinNoteTags: "email",
   joplinNoteTagsFromEmail: true,
