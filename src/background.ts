@@ -2,6 +2,10 @@ import { generateUrl, getSetting } from "./common";
 
 declare const browser: any;
 
+function onlyWhitespace(str: string) {
+  return str.trim().length === 0;
+}
+
 async function handleJoplinButton(tab: { id: number }, info: any) {
   // The icon will be red during transmission and if anything failed.
   browser.browserAction.setIcon({ path: "../images/logo_96_red.png" });
@@ -36,6 +40,19 @@ async function processMail(mailHeader: any) {
     return "Mail header is empty";
   }
 
+  // Add a note with the email content
+  let data: {
+    title: string;
+    parent_id: string;
+    is_todo: number;
+    body?: string;
+    body_html?: string;
+  } = {
+    title: mailHeader.subject + " from " + mailHeader.author,
+    parent_id: (await getSetting("joplinNoteParentFolder")) || "",
+    is_todo: Number(await getSetting("joplinExportAsTodo")),
+  };
+
   // Body
   type ContentType = "text/html" | "text/plain";
   type Mail = { body: string; contentType: ContentType; parts: Array<Mail> };
@@ -55,37 +72,31 @@ async function processMail(mailHeader: any) {
     return content;
   }
 
-  const mailObject = await browser.messages.getFull(mailHeader.id);
+  // If there is selected text, prefer it over the full email.
+  const selectedText = await browser.helper.getSelectedText();
+  if (onlyWhitespace(selectedText)) {
+    const mailObject = await browser.messages.getFull(mailHeader.id);
 
-  // text/html and text/plain seem to be the only used MIME types for the body.
-  const mailBodyHtml = getMailContent(mailObject, "text/html");
-  const mailBodyPlain = getMailContent(mailObject, "text/plain");
-  if (!mailBodyHtml && !mailBodyPlain) {
-    return "Mail body is empty";
-  }
+    // text/html and text/plain seem to be the only used MIME types for the body.
+    const mailBodyHtml = getMailContent(mailObject, "text/html");
+    const mailBodyPlain = getMailContent(mailObject, "text/plain");
+    if (!mailBodyHtml && !mailBodyPlain) {
+      return "Mail body is empty";
+    }
 
-  // Add a note with the email content
-  let data: {
-    title: string;
-    parent_id: string;
-    is_todo: number;
-    body?: string;
-    body_html?: string;
-  } = {
-    title: mailHeader.subject + " from " + mailHeader.author,
-    parent_id: (await getSetting("joplinNoteParentFolder")) || "",
-    is_todo: Number(await getSetting("joplinExportAsTodo")),
-  };
-
-  // If the preferred content type doesn't contain data, fall back to the other content type.
-  const contentType = await getSetting("joplinNoteFormat");
-  if ((contentType === "text/html" && mailBodyHtml) || !mailBodyPlain) {
-    console.log("Sending data in HTML format.");
-    data["body_html"] = mailBodyHtml;
-  }
-  if ((contentType === "text/plain" && mailBodyPlain) || !mailBodyHtml) {
-    console.log("Sending data in plain format.");
-    data["body"] = mailBodyPlain;
+    // If the preferred content type doesn't contain data, fall back to the other content type.
+    const contentType = await getSetting("joplinNoteFormat");
+    if ((contentType === "text/html" && mailBodyHtml) || !mailBodyPlain) {
+      console.log("Sending complete email in HTML format.");
+      data["body_html"] = mailBodyHtml;
+    }
+    if ((contentType === "text/plain" && mailBodyPlain) || !mailBodyHtml) {
+      console.log("Sending complete email in plain format.");
+      data["body"] = mailBodyPlain;
+    }
+  } else {
+    console.log("Sending selection in plain format.");
+    data["body"] = selectedText;
   }
 
   // https://javascript.info/fetch
@@ -221,4 +232,4 @@ async function processMail(mailHeader: any) {
 browser.browserAction.onClicked.addListener(handleJoplinButton);
 
 // Only needed for testing.
-export { handleJoplinButton, processMail };
+export { handleJoplinButton, processMail, onlyWhitespace };

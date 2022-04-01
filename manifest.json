@@ -28,5 +28,15 @@
   "icons": {
     "96": "images/logo_96_blue.png"
   },
-  "default_locale": "en_US"
+  "default_locale": "en_US",
+  "experiment_apis": {
+    "helper": {
+      "schema": "dist/helper.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["helper"]],
+        "script": "dist/helper.js"
+      }
+    }
+  }
 }

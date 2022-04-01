@@ -6,7 +6,11 @@ import { browser } from "../__mocks__/browser";
 // @ts-ignore
 global.browser = browser;
 
-import { processMail, handleJoplinButton } from "../src/background";
+import {
+  processMail,
+  handleJoplinButton,
+  onlyWhitespace,
+} from "../src/background";
 
 // Replace the javascript fetch with nodejs fetch.
 // @ts-ignore
@@ -302,8 +306,8 @@ describe("process mail", () => {
       // Finally check the console output.
       const message =
         resultFormat === "text/html"
-          ? "Sending data in HTML format."
-          : "Sending data in plain format.";
+          ? "Sending complete email in HTML format."
+          : "Sending complete email in plain format.";
       expectConsole({
         log: [message],
         warn: 0,
@@ -311,6 +315,35 @@ describe("process mail", () => {
       });
     }
   );
+
+  test("export selection", async () => {
+    const subject = "test subject";
+    const author = "test author";
+    const body = "test body";
+
+    browser.helper.getSelectedText.mockResolvedValueOnce(body);
+
+    const result = await processMail({
+      id: 0,
+      subject: subject,
+      author: author,
+    });
+    expect(result).toBe(null);
+
+    expect(requests.length).toBe(1);
+    expect(requests[0].body).toEqual({
+      body: body,
+      parent_id: browser.storage.local.data.joplinNoteParentFolder,
+      title: `${subject} from ${author}`,
+      is_todo: 0,
+    });
+
+    expectConsole({
+      log: ["Sending selection in plain format."],
+      warn: 0,
+      error: 0,
+    });
+  });
 
   test("export as todo", async () => {
     await browser.storage.local.set({ joplinExportAsTodo: true });
@@ -449,6 +482,22 @@ describe("process attachment", () => {
         warn: 0,
         error: 0,
       });
+    }
+  );
+});
+
+describe("util", () => {
+  test.each`
+    input        | expectedOutput
+    ${""}        | ${true}
+    ${"   "}     | ${true}
+    ${" \n \t "} | ${true}
+    ${"foo"}     | ${false}
+    ${"  bar  "} | ${false}
+  `(
+    "onlyWhitespace | input: $input | expectedOutput: $expectedOutput",
+    ({ input, expectedOutput }) => {
+      expect(onlyWhitespace(input)).toBe(expectedOutput);
     }
   );
 });

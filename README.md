@@ -8,7 +8,7 @@ Easily export your thunderbird emails to Joplin.
 
 ## Features
 
-- Export a single or multiple emails to Joplin.
+- Export a text selection, a single or multiple emails to Joplin.
 - Add tags and attachments from the email.
 
 ## Installation
