@@ -3,7 +3,7 @@ import path from "path";
 const html = fs.readFileSync(path.resolve(__dirname, "../dist/options.html"));
 
 // TODO: Navigating to __mocks__ shouldn't be needed.
-import { browser } from "../__mocks__/browser";
+import { browser, messenger } from "../__mocks__/browser";
 
 import { JSDOM } from "jsdom";
 
@@ -33,6 +33,8 @@ describe("options", function () {
     // @ts-ignore
     global.browser = browser;
     dom.window.browser = browser;
+    // @ts-ignore
+    global.messenger = messenger;
 
     // Wait until the dom isready.
     dom.window.document.addEventListener("DOMContentLoaded", () => {

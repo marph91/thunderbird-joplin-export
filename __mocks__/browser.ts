@@ -56,3 +56,14 @@ export const browser = {
   // https://webextension-api.thunderbird.net/en/91/how-to/experiments.html
   helper: { getSelectedText: jest.fn(async () => "") },
 };
+
+export const messenger = {
+  commands: {
+    onCommand: {
+      addListener: jest.fn(),
+    },
+  },
+  tabs: {
+    query: jest.fn(),
+  },
+};

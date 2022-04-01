@@ -2,11 +2,14 @@ import express from "express";
 import fetch from "node-fetch";
 
 // TODO: Navigating to __mocks__ shouldn't be needed.
-import { browser } from "../__mocks__/browser";
+import { browser, messenger } from "../__mocks__/browser";
 // @ts-ignore
 global.browser = browser;
+// @ts-ignore
+global.messenger = messenger;
 
 import {
+  handleHotkey,
   processMail,
   handleJoplinButton,
   onlyWhitespace,
@@ -147,7 +150,7 @@ afterAll(() => {
   server.close();
 });
 
-describe("handle button", () => {
+describe("handle button or hotkey", () => {
   test("API token not set", async () => {
     await browser.storage.local.set({ joplinToken: undefined });
 
@@ -192,6 +195,22 @@ describe("handle button", () => {
     // blue when finished successfully
     expect(browser.browserAction.icon).toBe("../images/logo_96_blue.png");
 
+    expectConsole({
+      log: 1,
+      warn: 0,
+      error: 0,
+    });
+  });
+
+  test("export by hotkey", async () => {
+    messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
+    browser.messageDisplay.getDisplayedMessages.mockReturnValueOnce([
+      { id: 1 },
+    ]);
+
+    await handleHotkey("export_to_joplin");
+
+    expect(requests.length).toBe(1);
     expectConsole({
       log: 1,
       warn: 0,
