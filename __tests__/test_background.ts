@@ -9,10 +9,10 @@ global.browser = browser;
 global.messenger = messenger;
 
 import {
+  getAndProcessMessages,
   handleHotkey,
-  processMail,
-  handleJoplinButton,
   onlyWhitespace,
+  processMail,
 } from "../src/background";
 
 // Replace the javascript fetch with nodejs fetch.
@@ -154,7 +154,7 @@ describe("handle button or hotkey", () => {
   test("API token not set", async () => {
     await browser.storage.local.set({ joplinToken: undefined });
 
-    expect(handleJoplinButton({ id: 0 }, {})).rejects.toThrow(
+    expect(getAndProcessMessages({ id: 0 }, {})).rejects.toThrow(
       "API token not set. Please specify it at the settings."
     );
     expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
@@ -171,7 +171,7 @@ describe("handle button or hotkey", () => {
     browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
       { id: 0 },
     ]);
-    await handleJoplinButton({ id: 0 }, {});
+    await getAndProcessMessages({ id: 0 }, {});
 
     expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
 
@@ -190,7 +190,7 @@ describe("handle button or hotkey", () => {
         return [{ id: 0 }];
       }
     );
-    await handleJoplinButton({ id: 0 }, {});
+    await getAndProcessMessages({ id: 0 }, {});
 
     // blue when finished successfully
     expect(browser.browserAction.icon).toBe("../images/logo_96_blue.png");

@@ -12,7 +12,7 @@ async function handleHotkey(command: string) {
       currentWindow: true,
     });
     // TODO: Is it fine to always access the first tab?
-    await handleJoplinButton(activeTabs[0], {});
+    await getAndProcessMessages(activeTabs[0], {});
   }
 }
 
@@ -20,7 +20,7 @@ function onlyWhitespace(str: string) {
   return str.trim().length === 0;
 }
 
-async function handleJoplinButton(tab: { id: number }, info: any) {
+async function getAndProcessMessages(tab: { id: number }, info: any) {
   // Called after button is clicked or hotkey is pressed.
 
   // The icon will be red during transmission and if anything failed.
@@ -245,8 +245,8 @@ async function processMail(mailHeader: any) {
   return null;
 }
 
-browser.browserAction.onClicked.addListener(handleJoplinButton);
+browser.browserAction.onClicked.addListener(getAndProcessMessages);
 messenger.commands.onCommand.addListener(handleHotkey);
 
 // Only needed for testing.
-export { handleHotkey, handleJoplinButton, processMail, onlyWhitespace };
+export { getAndProcessMessages, handleHotkey, onlyWhitespace, processMail };
