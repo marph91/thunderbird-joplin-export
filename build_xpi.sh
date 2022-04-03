@@ -13,5 +13,5 @@ npx browserify src/common.ts src/options.ts -p tsify -o dist/options.js
 cp src/*.html src/*.js* dist
 
 # create thunderbird addon
-rm joplin-export.xpi
+rm -f joplin-export.xpi
 zip joplin-export.xpi _locales/**/*.json images/*.png dist/* manifest.json
