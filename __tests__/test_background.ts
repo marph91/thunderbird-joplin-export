@@ -379,6 +379,36 @@ describe("process mail", () => {
       error: 0,
     });
   });
+
+  test.each`
+    inputSubject                         | regexString                          | expectedSubject
+    ${"Re: Re: Fwd:[topic] subject Re:"} | ${""}                                | ${"Re: Re: Fwd:[topic] subject Re:"}
+    ${"Re: Re: Fwd:[topic] subject Re:"} | ${"^(((Re|Fw|Fwd):|(\\[.*\\])) ?)*"} | ${"subject Re:"}
+  `(
+    "modify subject by regex: $regexString",
+    async ({ inputSubject, regexString, expectedSubject }) => {
+      const author = "author name";
+      await browser.storage.local.set({ joplinSubjectTrimRegex: regexString });
+
+      const result = await processMail({
+        id: 1,
+        subject: inputSubject,
+        author: author,
+      });
+
+      expect(result).toBe(null);
+      expect(requests.length).toBe(1);
+      expect(requests[0].body).toEqual(
+        expect.objectContaining({ title: `${expectedSubject} from ${author}` })
+      );
+
+      expectConsole({
+        log: 1,
+        warn: 0,
+        error: 0,
+      });
+    }
+  );
 });
 
 describe("process tag", () => {

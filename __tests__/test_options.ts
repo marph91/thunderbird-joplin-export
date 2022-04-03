@@ -15,6 +15,7 @@ const setting_ids = [
   "joplinHost",
   "joplinPort",
   "joplinToken",
+  "joplinSubjectTrimRegex",
   "joplinNoteFormat",
   "joplinExportAsTodo",
   "joplinAttachments",

@@ -57,6 +57,13 @@ async function processMail(mailHeader: any) {
   }
 
   // Add a note with the email content
+  // Title
+  const regexString = (await getSetting("joplinSubjectTrimRegex")) || "";
+  const finalSubject =
+    regexString === ""
+      ? mailHeader.subject
+      : mailHeader.subject.replace(new RegExp(regexString), "");
+
   let data: {
     title: string;
     parent_id: string;
@@ -64,7 +71,7 @@ async function processMail(mailHeader: any) {
     body?: string;
     body_html?: string;
   } = {
-    title: mailHeader.subject + " from " + mailHeader.author,
+    title: finalSubject + " from " + mailHeader.author,
     parent_id: (await getSetting("joplinNoteParentFolder")) || "",
     is_todo: Number(await getSetting("joplinExportAsTodo")),
   };

@@ -11,6 +11,7 @@ Easily export your thunderbird emails to Joplin.
 - Export a text selection, a single or multiple emails to Joplin.
 - Export by clicking the button or pressing the hotkey ("Ctrl+Alt+J" by default)
 - Export the email as note or todo.
+- Trim the subject by regex. For example remove "Re:" or "Fwd:".
 - Add tags and attachments from the email.
 
 ## Installation
