@@ -148,8 +148,12 @@ async function processMail(mailHeader: any) {
   }
 
   for (const tag of tags) {
+    // Strip spaces from tags, since they get stripped inside Joplin anyway. See:
+    // https://discourse.joplinapp.org/t/joplin-export-export-emails-from-thunderbird-to-joplin/24792/26
+    const strippedTag = tag.trim();
+
     // Check whether tag exists already
-    url = await generateUrl("search", [`query=${tag}`, "type=tag"]);
+    url = await generateUrl("search", [`query=${strippedTag}`, "type=tag"]);
     response = await fetch(url);
     if (!response.ok) {
       console.warn(`Search for tag failed: ${await response.text()}`);
@@ -165,7 +169,7 @@ async function processMail(mailHeader: any) {
       response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: tag }),
+        body: JSON.stringify({ title: strippedTag }),
       });
       if (!response.ok) {
         console.warn(`Failed to create tag: ${await response.text()}`);
@@ -181,7 +185,7 @@ async function processMail(mailHeader: any) {
         .map((e: { id: string; title: string }) => e.title)
         .join(", ");
       console.warn(
-        `Too many matching tags for "${tag}": ${matchingTagsString}`
+        `Too many matching tags for "${strippedTag}": ${matchingTagsString}`
       );
       continue;
     }

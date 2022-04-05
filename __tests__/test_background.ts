@@ -114,7 +114,14 @@ beforeAll(() => {
         }
         break;
       case "/tags":
-        // console.log(req.body);
+        if (req.body.title.trim() !== req.body.title) {
+          res
+            .status(500)
+            .send(
+              "Tag shouldn't start or end with whitespaces. " +
+                "They get stripped by Joplin, which can lead to inconsistent behaviour."
+            );
+        }
         returnData = { items: [] };
         break;
       default:
@@ -422,6 +429,7 @@ describe("process tag", () => {
     ${["emailTag"]} | ${false}         | ${"customTag"}
     ${["emailTag"]} | ${true}          | ${""}
     ${["emailTag"]} | ${true}          | ${"customTag"}
+    ${[]}           | ${false}         | ${" customTag "}
   `(
     "emailTags: $emailTags | includeEmailTags: $includeEmailTags | customTags: $customTags",
     async ({ emailTags, includeEmailTags, customTags }) => {
