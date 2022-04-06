@@ -132,7 +132,36 @@ async function processMail(mailHeader: any) {
   if (!response.ok) {
     return `Failed to create note: ${await response.text()}`;
   }
-  const noteInfo = await response.json();
+  let noteInfo = await response.json();
+
+  // Add header info like it is done at Thunderbird.
+  // Do it only here, because we don't need any plain/html switching.
+  // Disadvantage is the extra request.
+  const addHeaderInfo = await getSetting("joplinAddHeaderInfo");
+  if (addHeaderInfo) {
+    // Empty header seems to work in Joplin:
+    // https://stackoverflow.com/a/17543474/7410886
+    const headerInfo = [
+      "| | |",
+      "|-|-|",
+      `| From | ${mailHeader.author} |`,
+      `| Subject | ${finalSubject} |`,
+      `| Date | ${mailHeader.date} |`,
+      `| To | ${mailHeader.recipients.join(", ")} |`,
+      "\n---\n\n",
+    ].join("\n");
+
+    url = await generateUrl(`notes/${noteInfo["id"]}`, ["fields=id,body"]);
+    response = await fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ body: headerInfo + noteInfo["body"] }),
+    });
+    if (!response.ok) {
+      return `Failed to create note: ${await response.text()}`;
+    }
+    noteInfo = await response.json();
+  }
 
   //////////////////////////////////////////////////
   // Tags

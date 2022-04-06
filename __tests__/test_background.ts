@@ -128,6 +128,10 @@ beforeAll(() => {
       //console.log(req.path);
     }
 
+    if (req.method === "PUT" && req.path.startsWith("/notes")) {
+      returnData = { items: [] };
+    }
+
     res.status(200).send(JSON.stringify(returnData));
   });
 });
@@ -142,6 +146,8 @@ beforeEach(() => {
     joplinPort: 41142,
     joplinToken: "validToken",
 
+    joplinSubjectTrimRegex: "",
+    joplinAddHeaderInfo: false,
     joplinNoteParentFolder: "arbitrary folder",
     joplinNoteFormat: "text/html",
     joplinExportAsTodo: false,
@@ -260,6 +266,39 @@ describe("process mail", () => {
 
     expectConsole({
       log: 0,
+      warn: 0,
+      error: 0,
+    });
+  });
+
+  test("add header info", async () => {
+    const subject = "test subject";
+    const author = "test author";
+    const date = "06.04.2022";
+    const recipients = ["recipient 1", "recipient 2"];
+    const body = "test body";
+
+    await browser.storage.local.set({ joplinAddHeaderInfo: true });
+
+    browser.helper.getSelectedText.mockResolvedValueOnce(body);
+
+    const result = await processMail({
+      id: 1,
+      subject: subject,
+      author: author,
+      date: date,
+      recipients: recipients,
+    });
+
+    expect(result).toBe(null);
+    // 1 request to create the note.
+    // 1 request to add the header info.
+    expect(requests.length).toBe(2);
+    for (const info of [subject, author, date]) {
+      expect(requests[1].body.body).toContain(info);
+    }
+    expectConsole({
+      log: 1,
       warn: 0,
       error: 0,
     });
