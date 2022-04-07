@@ -9,7 +9,10 @@
     "gecko": {
       // Should be a valid ID: https://thunderbird.topicbox.com/groups/addons/T74f1c435d83899b0-Ma5af8053bbac6e066864ba0b/error-processing-applications-gecko-id-value-email-protected-must-match-regex-pattern
       "id": "joplin-export@martin.doerfelt",
-      "strict_min_version": "78.0"
+      // "listAttachments" was introduced in Thunderbird 88.
+      "strict_min_version": "88.0",
+      // https://addons.thunderbird.net/en-US/thunderbird/pages/appversions/
+      "strict_max_version": "102.*"
     }
   },
   "background": {
