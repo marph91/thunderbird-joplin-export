@@ -7,12 +7,9 @@
   "homepage_url": "https://github.com/marph91/thunderbird-joplin-export",
   "applications": {
     "gecko": {
-      // Should be a valid ID: https://thunderbird.topicbox.com/groups/addons/T74f1c435d83899b0-Ma5af8053bbac6e066864ba0b/error-processing-applications-gecko-id-value-email-protected-must-match-regex-pattern
       "id": "joplin-export@martin.doerfelt",
-      // "listAttachments" was introduced in Thunderbird 88.
       "strict_min_version": "88.0",
-      // https://addons.thunderbird.net/en-US/thunderbird/pages/appversions/
-      "strict_max_version": "102.*"
+      "strict_max_version": "102.0"
     }
   },
   "background": {
@@ -30,8 +27,6 @@
       "description": "Export emails by hotkey."
     }
   },
-  // https://developer.thunderbird.net/add-ons/updating/tb78#replacing-options
-  // https://github.com/thundernest/sample-extensions/blob/77f79f986e6005c07008d974fa629e258dcceb80/managedStorage/manifest.json
   "options_ui": {
     "page": "dist/options.html"
   },
