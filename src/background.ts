@@ -158,7 +158,7 @@ async function processMail(mailHeader: any) {
       body: JSON.stringify({ body: headerInfo + noteInfo["body"] }),
     });
     if (!response.ok) {
-      return `Failed to create note: ${await response.text()}`;
+      return `Failed to add header info to note: ${await response.text()}`;
     }
     noteInfo = await response.json();
   }
