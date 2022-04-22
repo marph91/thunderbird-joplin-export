@@ -23,27 +23,43 @@ function onlyWhitespace(str: string) {
 async function getAndProcessMessages(tab: { id: number }, info: any) {
   // Called after button is clicked or hotkey is pressed.
 
-  // The icon will be red during transmission and if anything failed.
-  browser.browserAction.setIcon({ path: "../images/logo_96_red.png" });
+  let notificationIcon = "../images/logo_96_red.png";
+  let notificationTitle = "Joplin export failed";
+  let notificationMessage;
 
   // Check for Joplin API token. If it isn't present, we can skip everything else.
   const apiToken = await getSetting("joplinToken");
   if (!apiToken) {
-    throw new Error("API token not set. Please specify it at the settings.");
-  }
+    notificationMessage = "API token missing.";
+  } else {
+    const mailHeaders = await browser.messageDisplay.getDisplayedMessages(
+      tab.id
+    );
+    const results = await Promise.all(mailHeaders.map(processMail));
+    for (const error of results) {
+      if (error) {
+        console.error(error);
+      }
+    }
 
-  const mailHeaders = await browser.messageDisplay.getDisplayedMessages(tab.id);
-  const results = await Promise.all(mailHeaders.map(processMail));
-  for (const error of results) {
-    if (error) {
-      console.error(error);
+    if (results.some((error) => error != null)) {
+      notificationMessage = "Please check the developer console.";
+    } else {
+      notificationIcon = "../images/logo_96_blue.png";
+      notificationTitle = "Joplin export succeeded";
+      notificationMessage =
+        results.length == 1
+          ? "Exported one email."
+          : `Exported ${results.length} emails.`;
     }
   }
 
-  if (results.every((error) => error == null)) {
-    // Only change back to blue if everything succeeded.
-    browser.browserAction.setIcon({ path: "../images/logo_96_blue.png" });
-  }
+  browser.notifications.create({
+    type: "basic",
+    iconUrl: notificationIcon,
+    title: notificationTitle,
+    message: notificationMessage,
+  });
 }
 
 async function processMail(mailHeader: any) {

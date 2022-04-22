@@ -139,6 +139,12 @@ beforeAll(() => {
 beforeEach(() => {
   jest.clearAllMocks();
 
+  // TODO: How to reset the object properly?
+  browser.notifications.icon = undefined;
+  browser.notifications.title = undefined;
+  browser.notifications.message = undefined;
+  browser.browserAction.icon = undefined;
+
   // Set local storage to mostly default values.
   browser.storage.local.data = {
     joplinScheme: "http",
@@ -167,10 +173,10 @@ describe("handle button or hotkey", () => {
   test("API token not set", async () => {
     await browser.storage.local.set({ joplinToken: undefined });
 
-    expect(getAndProcessMessages({ id: 0 }, {})).rejects.toThrow(
-      "API token not set. Please specify it at the settings."
-    );
-    expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
+    await getAndProcessMessages({ id: 0 }, {});
+    expect(browser.notifications.icon).toBe("../images/logo_96_red.png");
+    expect(browser.notifications.title).toBe("Joplin export failed");
+    expect(browser.notifications.message).toBe("API token missing.");
 
     expectConsole({
       log: 0,
@@ -186,7 +192,11 @@ describe("handle button or hotkey", () => {
     ]);
     await getAndProcessMessages({ id: 0 }, {});
 
-    expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
+    expect(browser.notifications.icon).toBe("../images/logo_96_red.png");
+    expect(browser.notifications.title).toBe("Joplin export failed");
+    expect(browser.notifications.message).toBe(
+      "Please check the developer console."
+    );
 
     expectConsole({
       log: 1,
@@ -198,15 +208,19 @@ describe("handle button or hotkey", () => {
   test("Correct icon color", async () => {
     browser.messageDisplay.getDisplayedMessages.mockImplementationOnce(
       async () => {
-        // red during processing
-        expect(browser.browserAction.icon).toBe("../images/logo_96_red.png");
+        // no notification during processing
+        expect(browser.notifications.icon).toBe(undefined);
+        expect(browser.notifications.title).toBe(undefined);
+        expect(browser.notifications.message).toBe(undefined);
         return [{ id: 0 }];
       }
     );
     await getAndProcessMessages({ id: 0 }, {});
 
     // blue when finished successfully
-    expect(browser.browserAction.icon).toBe("../images/logo_96_blue.png");
+    expect(browser.notifications.icon).toBe("../images/logo_96_blue.png");
+    expect(browser.notifications.title).toBe("Joplin export succeeded");
+    expect(browser.notifications.message).toBe("Exported one email.");
 
     expectConsole({
       log: 1,

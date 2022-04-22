@@ -1,6 +1,7 @@
 coverage
 node_modules
 test_profile
+images/screenshots
 notes.txt
 *.xpi
 *.xcf

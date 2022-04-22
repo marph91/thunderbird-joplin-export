@@ -29,7 +29,7 @@ export const browser = {
   },
   browserAction: {
     onClicked: { addListener: jest.fn() },
-    icon: <any>undefined,
+    icon: <string | undefined>undefined,
     setIcon: (icon: { path: string }) => {
       browser.browserAction.icon = icon.path;
     },
@@ -51,6 +51,17 @@ export const browser = {
     }),
     listAttachments: jest.fn(),
     getAttachmentFile: jest.fn(),
+  },
+  // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/notifications/create
+  notifications: {
+    icon: <string | undefined>undefined,
+    title: <string | undefined>undefined,
+    message: <string | undefined>undefined,
+    create: (options: { iconUrl: string; title: string; message: string }) => {
+      browser.notifications.icon = options.iconUrl;
+      browser.notifications.title = options.title;
+      browser.notifications.message = options.message;
+    },
   },
   // Added by experiments:
   // https://webextension-api.thunderbird.net/en/91/how-to/experiments.html
