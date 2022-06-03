@@ -124,6 +124,22 @@
   </fieldset>
 
   <fieldset>
+    <legend>Export</legend>
+    <p>
+      <label for="joplinShowNotifications">Show notifications:</label>
+      <select name="joplinShowNotifications" id="joplinShowNotifications">
+        <option value="always">Always</option>
+        <option value="onSuccess">On success</option>
+        <option value="onFailure">On failure</option>
+        <option value="never">Never</option>
+      </select>
+      <span class="hovertext" data-hover="Whether to show a notification after exporting an email.">
+        <small>&#9432;</small>
+      </span>
+    </p>
+  </fieldset>
+
+  <fieldset>
     <legend>Note</legend>
     <p>
       <label for="joplinSubjectTrimRegex">Trim subject:</label>

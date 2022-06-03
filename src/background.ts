@@ -23,26 +23,55 @@ function onlyWhitespace(str: string) {
 async function getAndProcessMessages(tab: { id: number }, info: any) {
   // Called after button is clicked or hotkey is pressed.
 
-  // The icon will be red during transmission and if anything failed.
-  browser.browserAction.setIcon({ path: "../images/logo_96_red.png" });
+  let success = true;
+  let notificationIcon = "../images/logo_96_red.png";
+  let notificationTitle = "Joplin export failed";
+  let notificationMessage;
 
   // Check for Joplin API token. If it isn't present, we can skip everything else.
   const apiToken = await getSetting("joplinToken");
   if (!apiToken) {
-    throw new Error("API token not set. Please specify it at the settings.");
-  }
+    notificationMessage = "API token missing.";
+    success = false;
+  } else {
+    const mailHeaders = await browser.messageDisplay.getDisplayedMessages(
+      tab.id
+    );
 
-  const mailHeaders = await browser.messageDisplay.getDisplayedMessages(tab.id);
-  const results = await Promise.all(mailHeaders.map(processMail));
-  for (const error of results) {
-    if (error) {
-      console.error(error);
+    // Process the mails and check for success.
+    const results = await Promise.all(mailHeaders.map(processMail));
+    for (const error of results) {
+      if (error) {
+        console.error(error);
+        success = false;
+      }
+    }
+
+    // Prepare the notification text.
+    if (success) {
+      notificationIcon = "../images/logo_96_blue.png";
+      notificationTitle = "Joplin export succeeded";
+      notificationMessage =
+        results.length == 1
+          ? "Exported one email."
+          : `Exported ${results.length} emails.`;
+    } else {
+      notificationMessage = "Please check the developer console.";
     }
   }
 
-  if (results.every((error) => error == null)) {
-    // Only change back to blue if everything succeeded.
-    browser.browserAction.setIcon({ path: "../images/logo_96_blue.png" });
+  // Emit the notification if configured.
+  const showNotifications = await getSetting("joplinShowNotifications");
+  if (
+    (success && ["always", "onSuccess"].includes(showNotifications)) ||
+    (!success && ["always", "onFailure"].includes(showNotifications))
+  ) {
+    browser.notifications.create({
+      type: "basic",
+      iconUrl: notificationIcon,
+      title: notificationTitle,
+      message: notificationMessage,
+    });
   }
 }
 
