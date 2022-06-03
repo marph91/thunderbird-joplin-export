@@ -7,12 +7,12 @@ async function handleHotkey(command: string) {
   // Called if hotkey is pressed.
 
   if (command === "export_to_joplin") {
-    const activeTabs = await messenger.tabs.query({
+    // Only the active tab is queried. So the array contains always exactly one element.
+    const [activeTab] = await messenger.tabs.query({
       active: true,
       currentWindow: true,
     });
-    // TODO: Is it fine to always access the first tab?
-    await getAndProcessMessages(activeTabs[0], {});
+    await getAndProcessMessages(activeTab, {});
   }
 }
 
@@ -269,7 +269,6 @@ async function processMail(mailHeader: any) {
     }
 
     // Always operate on body, even if previously used body_html.
-    // TODO: Check is this has side effects.
     url = await generateUrl(`notes/${noteInfo["id"]}`);
     response = await fetch(url, {
       method: "PUT",

@@ -11,7 +11,7 @@ export async function generateUrl(path: string, query: Array<string> = []) {
       "joplinPort",
       "joplinToken",
     ]);
-  // TODO: Does this modify the original array, like in python?
+  // Note: This modifies the original array, since it's passed by reference.
   query.push(`token=${joplinToken}`);
   return `${joplinScheme}://${joplinHost}:${joplinPort}/${path}?${query.join(
     "&"
