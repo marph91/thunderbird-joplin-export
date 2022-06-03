@@ -142,6 +142,10 @@ async function refreshNotebooks() {
   while (notebookSelect.firstChild) {
     notebookSelect.firstChild.remove();
   }
+  let opt = document.createElement("option");
+  opt.value = "";
+  opt.text = "< Select Notebook >";
+  notebookSelect.appendChild(opt);
   fillNotebookSelect(notebookTree, notebookSelect);
 
   // Set notebook if possible
