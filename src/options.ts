@@ -9,6 +9,7 @@ const default_map: { [key: string]: string | number | boolean } = {
   joplinHost: "127.0.0.1",
   joplinPort: 41184,
   joplinToken: "",
+  joplinShowNotifications: "onFailure",
   joplinSubjectTrimRegex: "",
   joplinAddHeaderInfo: false,
   joplinNoteFormat: "text/html",

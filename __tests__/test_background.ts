@@ -152,6 +152,8 @@ beforeEach(() => {
     joplinPort: 41142,
     joplinToken: "validToken",
 
+    joplinShowNotifications: "onFailure",
+
     joplinSubjectTrimRegex: "",
     joplinAddHeaderInfo: false,
     joplinNoteParentFolder: "arbitrary folder",
@@ -205,29 +207,67 @@ describe("handle button or hotkey", () => {
     });
   });
 
-  test("Correct icon color", async () => {
-    browser.messageDisplay.getDisplayedMessages.mockImplementationOnce(
-      async () => {
-        // no notification during processing
-        expect(browser.notifications.icon).toBe(undefined);
-        expect(browser.notifications.title).toBe(undefined);
-        expect(browser.notifications.message).toBe(undefined);
-        return [{ id: 0 }];
+  test.each`
+    showNotificationsSetting | exportSuccessful | notificationShown
+    ${"always"}              | ${true}          | ${true}
+    ${"always"}              | ${false}         | ${true}
+    ${"onSuccess"}           | ${true}          | ${true}
+    ${"onSuccess"}           | ${false}         | ${false}
+    ${"onFailure"}           | ${true}          | ${false}
+    ${"onFailure"}           | ${false}         | ${true}
+    ${"never"}               | ${true}          | ${false}
+    ${"never"}               | ${false}         | ${false}
+  `(
+    "show notifications setting: $showNotificationsSetting | export success: $exportSuccessful | notification shown: $notificationShown",
+    async ({
+      showNotificationsSetting,
+      exportSuccessful,
+      notificationShown,
+    }) => {
+      await browser.storage.local.set({
+        joplinShowNotifications: showNotificationsSetting,
+      });
+
+      // "{ id: 0 }" yields a successful export.
+      // "null" triggers the error "Mail header is empty".
+      browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce(
+        exportSuccessful ? [{ id: 0 }] : [null]
+      );
+
+      await getAndProcessMessages({ id: 0 }, {});
+
+      // Check the notification.
+      let expectedResult = {
+        icon: <string | undefined>undefined,
+        title: <string | undefined>undefined,
+        message: <string | undefined>undefined,
+      };
+      if (notificationShown) {
+        if (exportSuccessful) {
+          expectedResult = {
+            icon: "../images/logo_96_blue.png",
+            title: "Joplin export succeeded",
+            message: "Exported one email.",
+          };
+        } else {
+          expectedResult = {
+            icon: "../images/logo_96_red.png",
+            title: "Joplin export failed",
+            message: "Please check the developer console.",
+          };
+        }
       }
-    );
-    await getAndProcessMessages({ id: 0 }, {});
+      expect(browser.notifications).toEqual(
+        expect.objectContaining(expectedResult)
+      );
 
-    // blue when finished successfully
-    expect(browser.notifications.icon).toBe("../images/logo_96_blue.png");
-    expect(browser.notifications.title).toBe("Joplin export succeeded");
-    expect(browser.notifications.message).toBe("Exported one email.");
-
-    expectConsole({
-      log: 1,
-      warn: 0,
-      error: 0,
-    });
-  });
+      expectConsole({
+        log: exportSuccessful ? 1 : 0,
+        warn: 0,
+        error: exportSuccessful ? 0 : 1,
+      });
+    }
+  );
 
   test("export by hotkey", async () => {
     messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);

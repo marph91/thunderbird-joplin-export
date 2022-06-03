@@ -15,6 +15,7 @@ const setting_ids = [
   "joplinHost",
   "joplinPort",
   "joplinToken",
+  "joplinShowNotifications",
   "joplinSubjectTrimRegex",
   "joplinAddHeaderInfo",
   "joplinNoteFormat",
