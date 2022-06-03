@@ -18,7 +18,7 @@ Easily export your thunderbird emails to Joplin.
 
 - Thunderbird addon store: TODO
 - Manually import the addon:
-  1. Download the artifacts from the github build action: https://github.com/marph91/thunderbird-joplin-export/actions/workflows/build.yml.
+  1. Download the artifacts from the github build action: <https://github.com/marph91/thunderbird-joplin-export/actions/workflows/build.yml>.
   2. Extract the archive and look for "joplin-export.xpi".
   3. Import to Thunderbird via the addon manager -> "Install Add-on From File...".
 
@@ -30,7 +30,7 @@ Easily export your thunderbird emails to Joplin.
 4. Select any email. The Joplin button should be at the menu.
 5. Export the email by clicking the button. During the export, the icon is red. When anything is wrong, the icon stays red. After a successful export, the icon should turn blue again and the email should be in the specified Joplin notebook.
 
-https://user-images.githubusercontent.com/33229141/161036197-ab8c9801-8cad-400f-a114-8315f4363af3.mp4
+<https://user-images.githubusercontent.com/33229141/161036197-ab8c9801-8cad-400f-a114-8315f4363af3.mp4>
 
 ## Troubleshooting
 
@@ -43,5 +43,5 @@ What to do when the icon stays red?
 
 ## Related Projects
 
-- https://github.com/manolitto/joplin-mail-gateway: Add all emails of an account to Joplin.
-- https://github.com/EliasVincent/joplin-email-note: Export notes from Joplin to your email client.
+- <https://github.com/manolitto/joplin-mail-gateway>: Add all emails of an account to Joplin.
+- <https://github.com/EliasVincent/joplin-email-note>: Export notes from Joplin to your email client.
