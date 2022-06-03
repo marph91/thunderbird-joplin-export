@@ -93,6 +93,13 @@ async function processMail(mailHeader: any) {
       ? mailHeader.subject
       : mailHeader.subject.replace(new RegExp(regexString), "");
 
+  // Technically it's possible to export a note without specifying a parent notebook.
+  // However, it's rather annoying for the user.
+  const parentId = await getSetting("joplinNoteParentFolder");
+  if (!parentId) {
+    return `Invalid destination notebook: ${parentId}.`;
+  }
+
   let data: {
     title: string;
     parent_id: string;
@@ -101,7 +108,7 @@ async function processMail(mailHeader: any) {
     body_html?: string;
   } = {
     title: finalSubject + " from " + mailHeader.author,
-    parent_id: (await getSetting("joplinNoteParentFolder")) || "",
+    parent_id: parentId,
     is_todo: Number(await getSetting("joplinExportAsTodo")),
   };
 
