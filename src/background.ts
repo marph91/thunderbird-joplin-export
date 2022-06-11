@@ -100,7 +100,7 @@ async function processMail(mailHeader: any) {
     return `Invalid destination notebook: ${parentId}.`;
   }
 
-  let data: {
+  const data: {
     title: string;
     parent_id: string;
     is_todo: number;

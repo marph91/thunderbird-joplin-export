@@ -32,7 +32,7 @@ async function checkJoplinConnection() {
     };
   }
 
-  let response_text = await response.text();
+  const response_text = await response.text();
   if (response_text !== "JoplinClipperServer") {
     return {
       working: false,
@@ -54,7 +54,7 @@ async function checkJoplinConnection() {
 }
 
 async function updateConnectionStatus() {
-  let connectionStatus = document.getElementById(
+  const connectionStatus = document.getElementById(
     "joplinStatus"
   ) as HTMLInputElement;
   const { working, message } = await checkJoplinConnection();
@@ -118,7 +118,7 @@ async function refreshNotebooks() {
     indentationLevel = 0
   ) {
     for (const notebook of tree) {
-      let opt = document.createElement("option");
+      const opt = document.createElement("option");
       opt.value = notebook.id;
       // Spaces: https://stackoverflow.com/a/17855282/7410886
       opt.text = "\xA0\xA0".repeat(indentationLevel) + " " + notebook.title;
@@ -135,14 +135,14 @@ async function refreshNotebooks() {
     return;
   }
   const notebookTree = await response.json();
-  let notebookSelect = document.getElementById(
+  const notebookSelect = document.getElementById(
     "joplinNoteParentFolder"
   ) as HTMLSelectElement;
   // Clear all options before inserting new ones.
   while (notebookSelect.firstChild) {
     notebookSelect.firstChild.remove();
   }
-  let opt = document.createElement("option");
+  const opt = document.createElement("option");
   opt.value = "";
   opt.text = "< Select Notebook >";
   notebookSelect.appendChild(opt);
