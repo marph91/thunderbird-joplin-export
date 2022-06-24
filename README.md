@@ -19,7 +19,7 @@ Easily export your Thunderbird emails to Joplin.
 
 ### Include metadata
 
-In this section you will find some examples how to configure the metadata. All metadata of the [mail header object](https://webextension-api.thunderbird.net/en/latest/messages.html#messages-messageheader) can be included.
+In this section you will find some examples how to include email metadata into note title or body. All metadata of the [mail header object](https://webextension-api.thunderbird.net/en/latest/messages.html#messages-messageheader) can be used.
 
 By default, the note title template is `{{subject}} from {{author}}`. I. e. the `subject` and `author` keys are searched in the mail header object and inserted into the template if found. Since the subject contains often strings like `Re:` or `Fwd:`, these can be removed by defining a regex. The setting is called "Trim subject". For me, the regex `^(((Re|Fw|Fwd):|(\[.*\])) ?)*` works best.
 
