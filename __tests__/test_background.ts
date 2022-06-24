@@ -13,6 +13,7 @@ import {
   handleHotkey,
   onlyWhitespace,
   processMail,
+  renderString,
 } from "../src/background";
 
 // Replace the javascript fetch with nodejs fetch.
@@ -333,7 +334,17 @@ describe("process mail", () => {
     const recipients = ["recipient 1", "recipient 2"];
     const body = "test body";
 
-    await browser.storage.local.set({ joplinAddHeaderInfo: true });
+    await browser.storage.local.set({
+      joplinNoteHeaderTemplate: `
+        From: {{author}}
+        Subject: {{subject}}
+        Date: {{date}}
+        To: {{recipients}}
+
+        ---
+
+    `,
+    });
 
     browser.helper.getSelectedText.mockResolvedValueOnce(body);
 
@@ -349,7 +360,7 @@ describe("process mail", () => {
     // 1 request to create the note.
     // 1 request to add the header info.
     expect(requests.length).toBe(2);
-    for (const info of [subject, author, date]) {
+    for (const info of [subject, author, date, recipients[0], recipients[1]]) {
       expect(requests[1].body.body).toContain(info);
     }
     expectConsole({
@@ -649,6 +660,28 @@ describe("util", () => {
     "onlyWhitespace | input: $input | expectedOutput: $expectedOutput",
     ({ input, expectedOutput }) => {
       expect(onlyWhitespace(input)).toBe(expectedOutput);
+    }
+  );
+
+  test.each`
+    template                        | context                  | expectedOutput
+    ${""}                           | ${{}}                    | ${""}
+    ${""}                           | ${{ defined: "123" }}    | ${""}
+    ${"{{}}"}                       | ${{}}                    | ${"{{}}"}
+    ${"{{ }}"}                      | ${{}}                    | ${"{{ }}"}
+    ${"{{undefined}}"}              | ${{ defined: "123" }}    | ${"{{undefined}}"}
+    ${"{{defined}}"}                | ${{ defined: "123" }}    | ${"123"}
+    ${"{{ defined }}"}              | ${{ defined: "123" }}    | ${"123"}
+    ${"{{{{defined}}}}"}            | ${{ defined: "123" }}    | ${"{{{{defined}}}}"}
+    ${"{{defined}}: {{undefined}}"} | ${{ defined: "123" }}    | ${"123: {{undefined}}"}
+    ${"{{defined}}: {{defined}}"}   | ${{ defined: "123" }}    | ${"123: 123"}
+    ${"{{defined}}\n{{defined}}"}   | ${{ defined: "123" }}    | ${"123\n123"}
+    ${"{{array}}"}                  | ${{ array: ["1", "2"] }} | ${"1,2"}
+    ${"{{bool}}"}                   | ${{ bool: true }}        | ${"true"}
+  `(
+    "renderString | template: $template | context: $context | expectedOutput: $expectedOutput",
+    ({ template, context, expectedOutput }) => {
+      expect(renderString(template, context)).toBe(expectedOutput);
     }
   );
 });
