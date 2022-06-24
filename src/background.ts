@@ -37,6 +37,11 @@ function renderString(inputString: string, context: { [key: string]: any }) {
   let renderedString = inputString;
   for (const match of matches) {
     const trimmedMatch = match.slice(2, -2).trim();
+    if (!(trimmedMatch in context)) {
+      // Don't replace if there is no matching value.
+      // It would result in an "undefined" string.
+      continue;
+    }
     renderedString = renderedString.replace(match, context[trimmedMatch]);
   }
   return renderedString;
@@ -340,4 +345,10 @@ browser.browserAction.onClicked.addListener(getAndProcessMessages);
 messenger.commands.onCommand.addListener(handleHotkey);
 
 // Only needed for testing.
-export { getAndProcessMessages, handleHotkey, onlyWhitespace, processMail };
+export {
+  getAndProcessMessages,
+  handleHotkey,
+  onlyWhitespace,
+  processMail,
+  renderString,
+};
