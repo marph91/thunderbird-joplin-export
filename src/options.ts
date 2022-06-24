@@ -13,7 +13,6 @@ const default_map: { [key: string]: string | number | boolean } = {
   joplinSubjectTrimRegex: "",
   joplinNoteTitleTemplate: "{{subject}} from {{author}}",
   joplinNoteHeaderTemplate: "",
-  joplinAddHeaderInfo: false,
   joplinNoteFormat: "text/html",
   joplinExportAsTodo: false,
   joplinAttachments: "attach",

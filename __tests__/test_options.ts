@@ -19,7 +19,6 @@ const setting_ids = [
   "joplinSubjectTrimRegex",
   "joplinNoteTitleTemplate",
   "joplinNoteHeaderTemplate",
-  "joplinAddHeaderInfo",
   "joplinNoteFormat",
   "joplinExportAsTodo",
   "joplinAttachments",
