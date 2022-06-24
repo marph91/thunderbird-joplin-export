@@ -20,6 +20,28 @@ function onlyWhitespace(str: string) {
   return str.trim().length === 0;
 }
 
+function renderString(inputString: string, context: { [key: string]: any }) {
+  // Replace all occurrences of "{{x}}" in a string.
+  // Take the new value from the "context" argument.
+  // Leave the string unmodified if the new value isn't in the "context".
+
+  // Don't use a template engine like nunchucks:
+  // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_security_policy#valid_examples
+
+  const re = /{{.*?}}/g;
+  const matches = inputString.match(re);
+  if (!matches) {
+    return inputString;
+  }
+
+  let renderedString = inputString;
+  for (const match of matches) {
+    const trimmedMatch = match.slice(2, -2).trim();
+    renderedString = renderedString.replace(match, context[trimmedMatch]);
+  }
+  return renderedString;
+}
+
 async function getAndProcessMessages(tab: { id: number }, info: any) {
   // Called after button is clicked or hotkey is pressed.
 
@@ -85,20 +107,25 @@ async function processMail(mailHeader: any) {
     return "Mail header is empty";
   }
 
-  // Add a note with the email content
-  // Title
-  const regexString = (await getSetting("joplinSubjectTrimRegex")) || "";
-  const finalSubject =
-    regexString === ""
-      ? mailHeader.subject
-      : mailHeader.subject.replace(new RegExp(regexString), "");
-
   // Technically it's possible to export a note without specifying a parent notebook.
   // However, it's rather annoying for the user.
   const parentId = await getSetting("joplinNoteParentFolder");
   if (!parentId) {
     return `Invalid destination notebook: ${parentId}.`;
   }
+
+  // Add a note with the email content
+  // Title
+  const regexString = (await getSetting("joplinSubjectTrimRegex")) || "";
+  const trimmedSubject =
+    regexString === ""
+      ? mailHeader.subject
+      : mailHeader.subject.replace(new RegExp(regexString), "");
+  const renderingContext = { ...mailHeader, subject: trimmedSubject };
+  const titleRendered = renderString(
+    (await getSetting("joplinNoteTitleTemplate")) || "",
+    renderingContext
+  );
 
   const data: {
     title: string;
@@ -107,7 +134,7 @@ async function processMail(mailHeader: any) {
     body?: string;
     body_html?: string;
   } = {
-    title: finalSubject + " from " + mailHeader.author,
+    title: titleRendered,
     parent_id: parentId,
     is_todo: Number(await getSetting("joplinExportAsTodo")),
   };
@@ -170,23 +197,12 @@ async function processMail(mailHeader: any) {
   }
   let noteInfo = await response.json();
 
-  // Add header info like it is done at Thunderbird.
+  // Add user defined header info.
   // Do it only here, because we don't need any plain/html switching.
   // Disadvantage is the extra request.
-  const addHeaderInfo = await getSetting("joplinAddHeaderInfo");
-  if (addHeaderInfo) {
-    // Empty header seems to work in Joplin:
-    // https://stackoverflow.com/a/17543474/7410886
-    const headerInfo = [
-      "| | |",
-      "|-|-|",
-      `| From | ${mailHeader.author} |`,
-      `| Subject | ${finalSubject} |`,
-      `| Date | ${mailHeader.date} |`,
-      `| To | ${mailHeader.recipients.join(", ")} |`,
-      "\n---\n\n",
-    ].join("\n");
-
+  const renderTemplate = (await getSetting("joplinNoteHeaderTemplate")) || "";
+  if (renderTemplate) {
+    const headerInfo = renderString(renderTemplate, renderingContext);
     url = await generateUrl(`notes/${noteInfo["id"]}`, ["fields=id,body"]);
     response = await fetch(url, {
       method: "PUT",

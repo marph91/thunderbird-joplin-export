@@ -155,6 +155,8 @@ beforeEach(() => {
     joplinShowNotifications: "onFailure",
 
     joplinSubjectTrimRegex: "",
+    joplinNoteTitleTemplate: "{{subject}} from {{author}}",
+    joplinNoteHeaderTemplate: "",
     joplinAddHeaderInfo: false,
     joplinNoteParentFolder: "arbitrary folder",
     joplinNoteFormat: "text/html",

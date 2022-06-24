@@ -17,6 +17,8 @@ const setting_ids = [
   "joplinToken",
   "joplinShowNotifications",
   "joplinSubjectTrimRegex",
+  "joplinNoteTitleTemplate",
+  "joplinNoteHeaderTemplate",
   "joplinAddHeaderInfo",
   "joplinNoteFormat",
   "joplinExportAsTodo",
