@@ -14,8 +14,26 @@ Easily export your Thunderbird emails to Joplin.
 - Add metadata to the title and body of the note:
   - Set a template for note title and body.
   - Trim the subject by regex. For example, remove "Re:" or "Fwd:".
-  - Take a look at [the following section](#include-metadata) for details.
+  - Take a look at [this section](#include-metadata) for details.
 - Add tags and attachments from the email.
+
+## Installation
+
+- Via [Thunderbird addon store](https://addons.thunderbird.net/en/thunderbird/addon/joplin-export/) (preferred)
+- Via manual import:
+  1. Download the artifacts from the github build action: <https://github.com/marph91/thunderbird-joplin-export/actions/workflows/build.yml>.
+  2. Extract the archive and look for "joplin-export.xpi".
+  3. Import to Thunderbird via the addon manager -> "Install Add-on From File...".
+
+## Usage
+
+1. Start Joplin.
+2. [Enable the webclipper](https://joplinapp.org/clipper/) and copy the API token.
+3. Configure the plugin. If you are using the default settings, only the API token needs to be added.
+4. Select any email. The Joplin button should be at the menu.
+5. Export the email by clicking the button. If there is any problem, a notification will pop up. After a successful export, the email should be in the specified Joplin notebook.
+
+<https://user-images.githubusercontent.com/33229141/161036197-ab8c9801-8cad-400f-a114-8315f4363af3.mp4>
 
 ### Include metadata
 
@@ -53,27 +71,9 @@ Table with closing separation line:
 
 ```
 
-## Installation
-
-- Via [Thunderbird addon store](https://addons.thunderbird.net/en/thunderbird/addon/joplin-export/) (preferred)
-- Via manual import:
-  1. Download the artifacts from the github build action: <https://github.com/marph91/thunderbird-joplin-export/actions/workflows/build.yml>.
-  2. Extract the archive and look for "joplin-export.xpi".
-  3. Import to Thunderbird via the addon manager -> "Install Add-on From File...".
-
-## Usage
-
-1. Start Joplin.
-2. [Enable the webclipper](https://joplinapp.org/clipper/) and copy the API token.
-3. Configure the plugin. If you are using the default settings, only the API token needs to be added.
-4. Select any email. The Joplin button should be at the menu.
-5. Export the email by clicking the button. During the export, the icon is red. When anything is wrong, the icon stays red. After a successful export, the icon should turn blue again and the email should be in the specified Joplin notebook.
-
-<https://user-images.githubusercontent.com/33229141/161036197-ab8c9801-8cad-400f-a114-8315f4363af3.mp4>
-
 ## Troubleshooting
 
-What to do when the icon stays red?
+What to do when the export failed?
 
 1. Check that Joplin is running and the webclipper is enabled.
 2. Check that the plugin is configured correctly. There is a status field. The status should be "working". Make sure the API token is set correctly.
@@ -84,3 +84,4 @@ What to do when the icon stays red?
 
 - <https://github.com/manolitto/joplin-mail-gateway>: Add all emails of an account to Joplin.
 - <https://github.com/EliasVincent/joplin-email-note>: Export notes from Joplin to your email client.
+- <https://github.com/joplin/plugin-email>: Add all emails of one or more accounts to Joplin.
