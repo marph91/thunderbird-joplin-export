@@ -51,9 +51,12 @@
 
     /* https://stackoverflow.com/a/42391523/7410886 */
     input:not([type="checkbox"]),
-    select {
+    select,
+    textarea {
       display: table-cell;
       width: 100%;
+      /* only relevant for textarea */
+      resize: none;
     }
 
     /* Hovertexts for additional help, next to the input fields. */
@@ -142,7 +145,7 @@
   <fieldset>
     <legend>Note</legend>
     <p>
-      <label for="joplinSubjectTrimRegex">Trim Subject:</label>
+      <label for="joplinSubjectTrimRegex">Trim subject:</label>
       <input id="joplinSubjectTrimRegex" />
       <span class="hovertext"
         data-hover="Regex for trimming the subject. Useful for removing Re/Fwd at the start of the subject.">
@@ -150,11 +153,18 @@
       </span>
     </p>
     <p>
-      <label for="joplinAddHeaderInfo">Body:</label>
-      <input id="joplinAddHeaderInfo" type="checkbox" />
-      Add header info
+      <label for="joplinNoteTitleTemplate">Note title:</label>
+      <input id="joplinNoteTitleTemplate" />
       <span class="hovertext"
-        data-hover="Add some header information (author, subject, date, recipients) to the note body.">
+        data-hover="Template for the note title. Values are obtained from the mail header object. For details, check the github readme.">
+        <small>&#9432;</small>
+      </span>
+    </p>
+    <p>
+      <label for="joplinNoteHeaderTemplate">Note header:</label>
+      <textarea id="joplinNoteHeaderTemplate" rows="4"></textarea>
+      <span class="hovertext"
+        data-hover="Template for metadata at the top of the note body. Values are obtained from the mail header object. For details, check the github readme.">
         <small>&#9432;</small>
       </span>
     </p>
