@@ -555,9 +555,9 @@ describe("process mail", () => {
   );
 
   test.each`
-    inputDate                          | dateFormat | expectedDate
-    ${"06.04.2022"}                    | ${""}      | ${"06.04.2022"}
-    ${new Date("1995-12-17T03:24:00")} | ${"D T"}   | ${"17.12.1995 03:24"}
+    inputDate                          | dateFormat   | expectedDate
+    ${"06.04.2022"}                    | ${""}        | ${"06.04.2022"}
+    ${new Date("1995-12-17T03:24:00")} | ${"d.L.y T"} | ${"17.12.1995 03:24"}
   `(
     "apply date format: $dateFormat",
     async ({ inputDate, dateFormat, expectedDate }) => {
