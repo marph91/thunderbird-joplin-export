@@ -121,13 +121,30 @@ async function processMail(mailHeader: any) {
   }
 
   // Add a note with the email content
-  // Title
-  const regexString = (await getSetting("joplinSubjectTrimRegex")) || "";
+  // Customization
+  const regexStringSubject = (await getSetting("joplinSubjectTrimRegex")) || "";
+  const regexStringAuthor = (await getSetting("joplinAuthorTrimRegex")) || "";
+  const dateFormat = (await getSetting("joplinDateFormat")) || "";
   const trimmedSubject =
-    regexString === ""
+    regexStringSubject === ""
       ? mailHeader.subject
-      : mailHeader.subject.replace(new RegExp(regexString), "");
-  const renderingContext = { ...mailHeader, subject: trimmedSubject };
+      : mailHeader.subject.replace(new RegExp(regexStringSubject), "");
+  const trimmedAuthor =
+    regexStringAuthor === ""
+      ? mailHeader.author
+      : mailHeader.author.replace(new RegExp(regexStringAuthor), "");
+  const formattedDate =
+    dateFormat === ""
+      ? mailHeader.date
+      : DateTime.fromJSDate(mailHeader.date).toFormat(dateFormat);
+  const renderingContext = {
+    ...mailHeader,
+    subject: trimmedSubject,
+    author: trimmedAuthor,
+    date: formattedDate,
+  };
+
+  // Title
   const titleRendered = renderString(
     (await getSetting("joplinNoteTitleTemplate")) || "",
     renderingContext
