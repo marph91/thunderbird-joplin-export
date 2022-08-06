@@ -157,7 +157,7 @@ beforeEach(() => {
 
     joplinSubjectTrimRegex: "",
     joplinAuthorTrimRegex: "",
-    joplinDateFormat: "D T",
+    joplinDateFormat: "",
     joplinNoteTitleTemplate: "{{subject}} from {{author}}",
     joplinNoteHeaderTemplate: "",
     joplinNoteParentFolder: "arbitrary folder",
