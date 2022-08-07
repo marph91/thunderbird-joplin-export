@@ -11,6 +11,8 @@ const default_map: { [key: string]: string | number | boolean } = {
   joplinToken: "",
   joplinShowNotifications: "onFailure",
   joplinSubjectTrimRegex: "",
+  joplinAuthorTrimRegex: "",
+  joplinDateFormat: "D T",
   joplinNoteTitleTemplate: "{{subject}} from {{author}}",
   joplinNoteHeaderTemplate: "",
   joplinNoteFormat: "text/html",

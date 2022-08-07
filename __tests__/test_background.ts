@@ -156,6 +156,8 @@ beforeEach(() => {
     joplinShowNotifications: "onFailure",
 
     joplinSubjectTrimRegex: "",
+    joplinAuthorTrimRegex: "",
+    joplinDateFormat: "",
     joplinNoteTitleTemplate: "{{subject}} from {{author}}",
     joplinNoteHeaderTemplate: "",
     joplinNoteParentFolder: "arbitrary folder",
@@ -512,6 +514,73 @@ describe("process mail", () => {
       expect(requests.length).toBe(1);
       expect(requests[0].body).toEqual(
         expect.objectContaining({ title: `${expectedSubject} from ${author}` })
+      );
+
+      expectConsole({
+        log: 1,
+        warn: 0,
+        error: 0,
+      });
+    }
+  );
+
+  test.each`
+    inputAuthor                    | regexString  | expectedAuthor
+    ${"John Doof <john@doof.com>"} | ${""}        | ${"John Doof <john@doof.com>"}
+    ${"John Doof <john@doof.com>"} | ${" ?<.*>$"} | ${"John Doof"}
+  `(
+    "modify author by regex: $regexString",
+    async ({ inputAuthor, regexString, expectedAuthor }) => {
+      const subject = "some subject";
+      await browser.storage.local.set({ joplinAuthorTrimRegex: regexString });
+
+      const result = await processMail({
+        id: 1,
+        subject: subject,
+        author: inputAuthor,
+      });
+
+      expect(result).toBe(null);
+      expect(requests.length).toBe(1);
+      expect(requests[0].body).toEqual(
+        expect.objectContaining({ title: `${subject} from ${expectedAuthor}` })
+      );
+
+      expectConsole({
+        log: 1,
+        warn: 0,
+        error: 0,
+      });
+    }
+  );
+
+  test.each`
+    inputDate                          | dateFormat   | expectedDate
+    ${"06.04.2022"}                    | ${""}        | ${"06.04.2022"}
+    ${new Date("1995-12-17T03:24:00")} | ${"d.L.y T"} | ${"17.12.1995 03:24"}
+  `(
+    "apply date format: $dateFormat",
+    async ({ inputDate, dateFormat, expectedDate }) => {
+      const author = "author name";
+      const subject = "some subject";
+      await browser.storage.local.set({
+        joplinNoteTitleTemplate: "{{subject}} from {{author}} at {{date}}",
+        joplinDateFormat: dateFormat,
+      });
+
+      const result = await processMail({
+        id: 1,
+        subject: subject,
+        author: author,
+        date: inputDate,
+      });
+
+      expect(result).toBe(null);
+      expect(requests.length).toBe(1);
+      expect(requests[0].body).toEqual(
+        expect.objectContaining({
+          title: `${subject} from ${author} at ${expectedDate}`,
+        })
       );
 
       expectConsole({
