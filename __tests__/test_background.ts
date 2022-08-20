@@ -594,16 +594,16 @@ describe("process mail", () => {
 
 describe("process tag", () => {
   test.each`
-    emailTags       | includeEmailTags | customTags
-    ${[]}           | ${false}         | ${""}
-    ${[]}           | ${false}         | ${"customTag"}
-    ${[]}           | ${true}          | ${""}
-    ${[]}           | ${true}          | ${"customTag"}
-    ${["emailTag"]} | ${false}         | ${""}
-    ${["emailTag"]} | ${false}         | ${"customTag"}
-    ${["emailTag"]} | ${true}          | ${""}
-    ${["emailTag"]} | ${true}          | ${"customTag"}
-    ${[]}           | ${false}         | ${" customTag "}
+    emailTags      | includeEmailTags | customTags
+    ${[]}          | ${false}         | ${""}
+    ${[]}          | ${false}         | ${"customTag"}
+    ${[]}          | ${true}          | ${""}
+    ${[]}          | ${true}          | ${"customTag"}
+    ${["$label1"]} | ${false}         | ${""}
+    ${["$label1"]} | ${false}         | ${"customTag"}
+    ${["$label1"]} | ${true}          | ${""}
+    ${["$label1"]} | ${true}          | ${"customTag"}
+    ${[]}          | ${false}         | ${" customTag "}
   `(
     "emailTags: $emailTags | includeEmailTags: $includeEmailTags | customTags: $customTags",
     async ({ emailTags, includeEmailTags, customTags }) => {

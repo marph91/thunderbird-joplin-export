@@ -248,7 +248,13 @@ async function processMail(mailHeader: any) {
 
   const includeMailTags = await getSetting("joplinNoteTagsFromEmail");
   if (includeMailTags) {
-    tags = tags.concat(mailHeader.tags);
+    // Find each tag key in the mapping and return the corresponding, human readable value.
+    const tagMapping = await browser.messages.listTags();
+    const mailTags = mailHeader.tags.map((tagKey: string) => {
+      return tagMapping.find((mapping: any) => mapping.key === tagKey).tag;
+    });
+
+    tags = tags.concat(mailTags);
   }
 
   for (const tag of tags) {
