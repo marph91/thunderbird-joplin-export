@@ -49,6 +49,9 @@ export const browser = {
         ],
       };
     }),
+    listTags: jest.fn(async () => {
+      return [{ key: "$label1", tag: "Important" }];
+    }),
     listAttachments: jest.fn(),
     getAttachmentFile: jest.fn(),
   },
