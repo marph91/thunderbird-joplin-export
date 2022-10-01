@@ -29,7 +29,12 @@ Easily export your Thunderbird emails to Joplin.
 
 1. Start Joplin.
 2. [Enable the webclipper](https://joplinapp.org/clipper/) and copy the API token.
-3. Configure the plugin. If you are using the default settings, only the API token needs to be added.
+3. Configure the plugin:
+  1. Paste the API token to the token field.
+  2. Save
+  3. Refresh the available notebooks by pressing the small update button.
+  4. Select a destination notebook.
+  5. Save
 4. Select any email. The Joplin button should be at the menu.
 5. Export the email by clicking the button. If there is any problem, a notification will pop up. After a successful export, the email should be in the specified Joplin notebook.
 
@@ -60,12 +65,12 @@ To: {{recipients}}
 Table with closing separation line:
 
 ```text
-| | |
-|-|-|
-| From | {{author}} |
-| Subject | {{subject}} |
-| Date | {{date}} |
-| To | {{recipients}} |
+|         |                |
+| ------- | -------------- |
+| From    | {{author}}     |
+| Subject | {{subject}}    |
+| Date    | {{date}}       |
+| To      | {{recipients}} |
 
 ---
 
@@ -85,3 +90,8 @@ What to do when the export failed?
 - <https://github.com/manolitto/joplin-mail-gateway>: Add all emails of an account to Joplin.
 - <https://github.com/EliasVincent/joplin-email-note>: Export notes from Joplin to your email client.
 - <https://github.com/joplin/plugin-email>: Add all emails of one or more accounts to Joplin.
+
+## Further ressources
+
+- <https://webextension-api.thunderbird.net/en/latest/>
+- <https://developer.thunderbird.net/add-ons/resources>
