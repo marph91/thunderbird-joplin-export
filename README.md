@@ -13,7 +13,8 @@ Easily export your Thunderbird emails to Joplin.
 - Export the email as note or todo.
 - Add metadata to the title and body of the note:
   - Set a template for note title and body.
-  - Trim the subject by regex. For example, remove "Re:" or "Fwd:".
+  - Trim the author or subject by regex. For example, remove "Re:" or "Fwd:".
+  - Include the date in a [custom format](https://moment.github.io/luxon/#/formatting?id=table-of-tokens).
   - Take a look at [this section](#include-metadata) for details.
 - Add tags and attachments from the email.
 
