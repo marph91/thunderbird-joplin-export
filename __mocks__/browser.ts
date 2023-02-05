@@ -34,6 +34,10 @@ export const browser = {
       browser.browserAction.icon = icon.path;
     },
   },
+  menus: {
+    create: jest.fn(),
+    onClicked: { addListener: jest.fn() },
+  },
   messageDisplay: {
     getDisplayedMessages: jest.fn(),
   },

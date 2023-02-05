@@ -10,6 +10,7 @@ global.messenger = messenger;
 
 import {
   getAndProcessMessages,
+  handleContextMenu,
   handleHotkey,
   onlyWhitespace,
   processMail,
@@ -175,7 +176,7 @@ afterAll(() => {
   server.close();
 });
 
-describe("handle button or hotkey", () => {
+describe("handle button / hotkey / context menu", () => {
   test("API token not set", async () => {
     await browser.storage.local.set({ joplinToken: undefined });
 
@@ -280,6 +281,22 @@ describe("handle button or hotkey", () => {
     ]);
 
     await handleHotkey("export_to_joplin");
+
+    expect(requests.length).toBe(1);
+    expectConsole({
+      log: 1,
+      warn: 0,
+      error: 0,
+    });
+  });
+
+  test("export by context menu", async () => {
+    messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
+    browser.messageDisplay.getDisplayedMessages.mockReturnValueOnce([
+      { id: 1 },
+    ]);
+
+    await handleContextMenu({ menuItemId: "export_to_joplin" }, { id: 1 });
 
     expect(requests.length).toBe(1);
     expectConsole({

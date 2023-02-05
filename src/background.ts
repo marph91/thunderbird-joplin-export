@@ -4,6 +4,30 @@ import { generateUrl, getSetting } from "./common";
 declare const browser: any;
 declare const messenger: any;
 
+//////////////////////////////////////////////////
+// Export by context menu
+//////////////////////////////////////////////////
+
+browser.menus.create({
+  id: "export_to_joplin",
+  title: "Joplin Export",
+  // https://developer.thunderbird.net/add-ons/mailextensions/supported-ui-elements#menu-items
+  contexts: ["message_list", "page", "frame", "selection"],
+});
+
+async function handleContextMenu(
+  info: { menuItemId: string },
+  tab: { id: number }
+) {
+  if (info.menuItemId === "export_to_joplin") {
+    await getAndProcessMessages(tab, {});
+  }
+}
+
+//////////////////////////////////////////////////
+// Export by hotkey
+//////////////////////////////////////////////////
+
 async function handleHotkey(command: string) {
   // Called if hotkey is pressed.
 
@@ -47,6 +71,10 @@ function renderString(inputString: string, context: { [key: string]: any }) {
   }
   return renderedString;
 }
+
+//////////////////////////////////////////////////
+// Export by menu button
+//////////////////////////////////////////////////
 
 async function getAndProcessMessages(tab: { id: number }, info: any) {
   // Called after button is clicked or hotkey is pressed.
@@ -365,12 +393,15 @@ async function processMail(mailHeader: any) {
   return null;
 }
 
+// Three ways to export notes: by menu button, hotkey or context menu.
 browser.browserAction.onClicked.addListener(getAndProcessMessages);
 messenger.commands.onCommand.addListener(handleHotkey);
+browser.menus.onClicked.addListener(handleContextMenu);
 
 // Only needed for testing.
 export {
   getAndProcessMessages,
+  handleContextMenu,
   handleHotkey,
   onlyWhitespace,
   processMail,
