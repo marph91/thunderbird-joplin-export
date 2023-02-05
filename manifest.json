@@ -30,7 +30,7 @@
   "options_ui": {
     "page": "dist/options.html"
   },
-  "permissions": ["messagesRead", "notifications", "storage"],
+  "permissions": ["menus", "messagesRead", "notifications", "storage"],
   "icons": {
     "96": "images/logo_96_blue.png"
   },
