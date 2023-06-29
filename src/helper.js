@@ -1,5 +1,3 @@
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 // Use "var" on purpose. See:
 // https://webextension-api.thunderbird.net/en/91/how-to/experiments.html?highlight=services#implementing-functions
 var helper = class extends ExtensionCommon.ExtensionAPI {
