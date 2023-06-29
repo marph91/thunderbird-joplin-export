@@ -96,3 +96,26 @@ What to do when the export failed?
 
 - <https://webextension-api.thunderbird.net/en/latest/>
 - <https://developer.thunderbird.net/add-ons/resources>
+
+## Changelog
+
+### Master
+
+- Add support for Thunderbird 117 (<https://github.com/marph91/thunderbird-joplin-export/pull/22>).
+
+### 0.0.4
+
+- Add export via context menu (<https://github.com/marph91/thunderbird-joplin-export/pull/21>).
+
+### 0.0.3
+
+- Add custom author and date (<https://github.com/marph91/thunderbird-joplin-export/pull/16>).
+- Fix naming of the default tags (<https://github.com/marph91/thunderbird-joplin-export/pull/18>).
+
+### 0.0.2
+
+- Add user defined note title (<https://github.com/marph91/thunderbird-joplin-export/pull/9>).
+
+### 0.0.1
+
+- Initial release.
