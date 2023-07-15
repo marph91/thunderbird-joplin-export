@@ -8,7 +8,8 @@
   "applications": {
     "gecko": {
       "id": "joplin-export@martin.doerfelt",
-      "strict_min_version": "88.0"
+      "strict_min_version": "88.0",
+      "strict_max_version": "117.*"
     }
   },
   "background": {
