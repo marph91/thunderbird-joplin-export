@@ -99,7 +99,7 @@ What to do when the export failed?
 
 ## Changelog
 
-### Master
+### 0.0.5
 
 - Add support for Thunderbird 117 (<https://github.com/marph91/thunderbird-joplin-export/pull/22>).
 
