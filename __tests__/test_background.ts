@@ -349,7 +349,7 @@ describe("process mail", () => {
   test("add header info", async () => {
     const subject = "test subject";
     const author = "test author";
-    const date = "06.04.2022";
+    const date = new Date("1995-12-17T03:24:00");
     const recipients = ["recipient 1", "recipient 2"];
     const body = "test body";
 
@@ -379,7 +379,13 @@ describe("process mail", () => {
     // 1 request to create the note.
     // 1 request to add the header info.
     expect(requests.length).toBe(2);
-    for (const info of [subject, author, date, recipients[0], recipients[1]]) {
+    for (const info of [
+      subject,
+      author,
+      date.toString(),
+      recipients[0],
+      recipients[1],
+    ]) {
       expect(requests[1].body.body).toContain(info);
     }
     expectConsole({
@@ -409,6 +415,7 @@ describe("process mail", () => {
     }) => {
       const subject = "test subject";
       const author = "test author";
+      const date = new Date(Date.now());
       const body = "test body";
 
       await browser.storage.local.set({ joplinNoteFormat: preferredFormat });
@@ -432,6 +439,7 @@ describe("process mail", () => {
         id: 0,
         subject: subject,
         author: author,
+        date: date,
       });
 
       if (!resultFormat) {
@@ -451,6 +459,8 @@ describe("process mail", () => {
         parent_id: browser.storage.local.data.joplinNoteParentFolder,
         title: `${subject} from ${author}`,
         is_todo: 0,
+        author: author,
+        user_created_time: date.getTime(),
       });
 
       // Finally check the console output.
@@ -469,6 +479,7 @@ describe("process mail", () => {
   test("export selection", async () => {
     const subject = "test subject";
     const author = "test author";
+    const date = new Date(Date.now());
     const body = "test body";
 
     browser.helper.getSelectedText.mockResolvedValueOnce(body);
@@ -477,6 +488,7 @@ describe("process mail", () => {
       id: 0,
       subject: subject,
       author: author,
+      date: date,
     });
     expect(result).toBe(null);
 
@@ -486,6 +498,8 @@ describe("process mail", () => {
       parent_id: browser.storage.local.data.joplinNoteParentFolder,
       title: `${subject} from ${author}`,
       is_todo: 0,
+      author: author,
+      user_created_time: date.getTime(),
     });
 
     expectConsole({
@@ -573,7 +587,7 @@ describe("process mail", () => {
 
   test.each`
     inputDate                          | dateFormat   | expectedDate
-    ${"06.04.2022"}                    | ${""}        | ${"06.04.2022"}
+    ${new Date(2022, 4, 6)}            | ${""}        | ${new Date(2022, 4, 6).toString()}
     ${new Date("1995-12-17T03:24:00")} | ${"d.L.y T"} | ${"17.12.1995 03:24"}
   `(
     "apply date format: $dateFormat",

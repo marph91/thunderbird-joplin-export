@@ -182,12 +182,16 @@ async function processMail(mailHeader: any) {
     title: string;
     parent_id: string;
     is_todo: number;
+    author: string;
+    user_created_time: number;
     body?: string;
     body_html?: string;
   } = {
     title: titleRendered,
     parent_id: parentId,
     is_todo: Number(await getSetting("joplinExportAsTodo")),
+    author: mailHeader.author,
+    user_created_time: mailHeader.date ? mailHeader.date.getTime() : 0,
   };
 
   // Body
