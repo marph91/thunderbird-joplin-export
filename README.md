@@ -88,6 +88,7 @@ What to do when the export failed?
 
 ## Related Projects
 
+- [Overview in the Joplin forum](https://discourse.joplinapp.org/t/how-to-handle-emails-with-joplin-desktop/37469)
 - <https://github.com/manolitto/joplin-mail-gateway>: Add all emails of an account to Joplin.
 - <https://github.com/EliasVincent/joplin-email-note>: Export notes from Joplin to your email client.
 - <https://github.com/joplin/plugin-email>: Add all emails of one or more accounts to Joplin.
@@ -98,6 +99,11 @@ What to do when the export failed?
 - <https://developer.thunderbird.net/add-ons/resources>
 
 ## Changelog
+
+### master
+
+- Add `author` and `user_created_date` metadata.
+- Add support for Thunderbird up to version 127.
 
 ### 0.0.5
 
