@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Joplin Export",
   "description": "__MSG_extensionDescription__",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": "Martin Dörfelt",
   "homepage_url": "https://github.com/marph91/thunderbird-joplin-export",
   "applications": {
