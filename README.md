@@ -12,30 +12,29 @@ Easily export your Thunderbird emails to Joplin.
 - Export by clicking the button or pressing the hotkey (by default "Ctrl+Alt+J")
 - Export the email as note or todo.
 - Add metadata to the title and body of the note:
-  - Set a template for note title and body.
-  - Trim the author or subject by regex. For example, remove "Re:" or "Fwd:".
-  - Include the date in a [custom format](https://moment.github.io/luxon/#/formatting?id=table-of-tokens).
-  - Take a look at [this section](#include-metadata) for details.
+    - Set a template for note title and body.
+    - Trim the author or subject by regex. For example, remove "Re:" or "Fwd:".
+    - Include the date in a [custom format](https://moment.github.io/luxon/#/formatting?id=table-of-tokens).
+    - Take a look at [this section](#include-metadata) for details.
 - Add tags and attachments from the email.
 
 ## Installation
 
 - Via [Thunderbird addon store](https://addons.thunderbird.net/en/thunderbird/addon/joplin-export/) (preferred)
 - Via manual import:
-  1. Download the artifacts from the github build action: <https://github.com/marph91/thunderbird-joplin-export/actions/workflows/build.yml>.
-  2. Extract the archive and look for "joplin-export.xpi".
-  3. Import to Thunderbird via the addon manager: Tools -> Add-ons -> small gear at top right -> "Install Add-on From File...".
+    1. Download the artifacts from the [releases page](https://github.com/marph91/thunderbird-joplin-export/releases).
+    2. Import to Thunderbird via the addon manager: Tools -> Add-ons -> small gear at top right -> "Install Add-on From File...".
 
 ## Usage
 
 1. Start Joplin.
 2. [Enable the webclipper](https://joplinapp.org/clipper/) and copy the API token.
 3. Configure the plugin:
-  1. Paste the API token to the token field.
-  2. Save
-  3. Refresh the available notebooks by pressing the small update button.
-  4. Select a destination notebook.
-  5. Save
+    1. Paste the API token to the token field.
+    2. Save
+    3. Refresh the available notebooks by pressing the small update button.
+    4. Select a destination notebook.
+    5. Save
 4. Select any email. The Joplin button should be at the menu.
 5. Export the email by clicking the button. If there is any problem, a notification will pop up. After a successful export, the email should be in the specified Joplin notebook.
 
@@ -100,7 +99,7 @@ What to do when the export failed?
 
 ## Changelog
 
-### master
+### 0.0.6
 
 - Add `author` and `user_created_date` metadata.
 - Add support for Thunderbird up to version 127.
