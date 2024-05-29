@@ -34,12 +34,15 @@ export const browser = {
       browser.browserAction.icon = icon.path;
     },
   },
+  mailTabs: {
+    getSelectedMessages: jest.fn(async (_tabId) => <any>{ messages: [] }),
+  },
   menus: {
     create: jest.fn(),
     onClicked: { addListener: jest.fn() },
   },
   messageDisplay: {
-    getDisplayedMessages: jest.fn(),
+    getDisplayedMessages: jest.fn(async (_tabId) => <Array<any>>[]),
   },
   messages: {
     getFull: jest.fn(async () => {

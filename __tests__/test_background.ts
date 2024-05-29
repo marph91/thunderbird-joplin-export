@@ -209,7 +209,7 @@ describe("handle button / hotkey / context menu", () => {
     expectConsole({
       log: 1,
       warn: 0,
-      error: ["Failed to create note: Invalid token"],
+      error: ["[Joplin Export] Failed to create note: Invalid token"],
     });
   });
 
@@ -277,7 +277,7 @@ describe("handle button / hotkey / context menu", () => {
 
   test("export by menu button", async () => {
     messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
-    browser.messageDisplay.getDisplayedMessages.mockReturnValueOnce([
+    browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
       { id: 1 },
     ]);
 
@@ -293,7 +293,7 @@ describe("handle button / hotkey / context menu", () => {
 
   test("export by hotkey", async () => {
     messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
-    browser.messageDisplay.getDisplayedMessages.mockReturnValueOnce([
+    browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
       { id: 1 },
     ]);
 
@@ -309,7 +309,7 @@ describe("handle button / hotkey / context menu", () => {
 
   test("export by context menu", async () => {
     messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
-    browser.messageDisplay.getDisplayedMessages.mockReturnValueOnce([
+    browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
       { id: 1 },
     ]);
 
@@ -319,6 +319,74 @@ describe("handle button / hotkey / context menu", () => {
     expectConsole({
       log: 1,
       warn: 0,
+      error: 0,
+    });
+  });
+});
+
+describe("handle displayed and selected mails", () => {
+  test("one selected mail", async () => {
+    messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
+    browser.mailTabs.getSelectedMessages.mockResolvedValueOnce({
+      messages: [{ id: 1 }],
+    });
+
+    await getAndProcessMessages({ id: 1 }, {});
+
+    expect(requests.length).toBe(1);
+    expectConsole({
+      log: 1,
+      warn: 0,
+      error: 0,
+    });
+  });
+
+  test("no selected mail, one displayed mail", async () => {
+    messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
+    browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
+      { id: 1 },
+    ]);
+
+    await getAndProcessMessages({ id: 1 }, {});
+
+    expect(requests.length).toBe(1);
+    expectConsole({
+      log: 1,
+      warn: 0,
+      error: 0,
+    });
+  });
+
+  test("error at selected mail, one displayed mail", async () => {
+    messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
+    // This error gets thrown when querying the selected messages at a tab
+    // where are no messages selected.
+    browser.mailTabs.getSelectedMessages.mockImplementation(() => {
+      throw new Error();
+    });
+    browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
+      { id: 1 },
+    ]);
+
+    await getAndProcessMessages({ id: 1 }, {});
+
+    expect(requests.length).toBe(1);
+    expectConsole({
+      log: 1,
+      warn: 0,
+      error: 0,
+    });
+  });
+
+  test("no selectedmail, no displayed mail", async () => {
+    messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
+
+    await getAndProcessMessages({ id: 1 }, {});
+
+    expect(requests.length).toBe(0);
+    expectConsole({
+      log: 0,
+      warn: 1,
       error: 0,
     });
   });
@@ -483,8 +551,8 @@ describe("process mail", () => {
       // Finally check the console output.
       const message =
         resultFormat === "text/html"
-          ? "Sending complete email in HTML format."
-          : "Sending complete email in plain format.";
+          ? "[Joplin Export] Sending complete email in HTML format."
+          : "[Joplin Export] Sending complete email in plain format.";
       expectConsole({
         log: [message],
         warn: 0,
@@ -520,7 +588,7 @@ describe("process mail", () => {
     });
 
     expectConsole({
-      log: ["Sending selection in plain format."],
+      log: ["[Joplin Export] Sending selection in plain format."],
       warn: 0,
       error: 0,
     });
@@ -709,7 +777,7 @@ describe("process tag", () => {
 
     expectConsole({
       log: 1,
-      warn: ['Too many matching tags for "multipleTags": a, b'],
+      warn: ['[Joplin Export] Too many matching tags for "multipleTags": a, b'],
       error: 0,
     });
   });

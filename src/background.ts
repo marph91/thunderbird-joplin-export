@@ -101,15 +101,10 @@ async function getAndProcessMessages(tab: { id: number }, info: any) {
     notificationMessage = "API token missing.";
     success = false;
   } else {
-    const mailHeaders = await browser.messageDisplay.getDisplayedMessages(
-      tab.id
-    );
-    console.debug(
-      `[Joplin Export] Got ${mailHeaders.length} emails at tab ${tab.id}.`
-    );
+    const messages = await getMessages(tab.id);
 
     // Process the mails and check for success.
-    const results = await Promise.all(mailHeaders.map(processMail));
+    const results = await Promise.all(messages.map(processMail));
     for (const error of results) {
       if (error) {
         console.error(`[Joplin Export] ${error}`);
@@ -143,6 +138,35 @@ async function getAndProcessMessages(tab: { id: number }, info: any) {
       message: notificationMessage,
     });
   }
+}
+
+async function getMessages(tabId: number) {
+  let messages = [];
+  try {
+    // Try to get selected messages when in the main mail tab.
+    const messageList = await browser.mailTabs.getSelectedMessages(tabId);
+    messages = messageList.messages;
+    if (messages.length === 0) {
+      console.debug(
+        "[Joplin Export] No selected messages. Try to get displayed messages."
+      );
+      messages = await browser.messageDisplay.getDisplayedMessages(tabId);
+    }
+  } catch (error: any) {
+    // Try to get a displayed message when in message tab.
+    console.debug(
+      `[Joplin Export] Error at selected messages (${error.message}). Try to get displayed messages.`
+    );
+    messages = await browser.messageDisplay.getDisplayedMessages(tabId);
+  }
+  const logMessage = `[Joplin Export] Got ${messages.length} emails at tab ${tabId}.`;
+  if (messages.length > 0) {
+    console.debug(logMessage);
+  } else {
+    console.warn(logMessage);
+  }
+
+  return messages;
 }
 
 async function processMail(mailHeader: any) {
