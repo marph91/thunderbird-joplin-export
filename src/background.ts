@@ -5,6 +5,15 @@ declare const browser: any;
 declare const messenger: any;
 
 //////////////////////////////////////////////////
+// Export by menu button
+//////////////////////////////////////////////////
+
+async function handleMenuButton(tab: { id: number }, info: any) {
+  console.debug("[Joplin Export] Export via menu button.");
+  await getAndProcessMessages(tab, {});
+}
+
+//////////////////////////////////////////////////
 // Export by context menu
 //////////////////////////////////////////////////
 
@@ -20,6 +29,7 @@ async function handleContextMenu(
   tab: { id: number }
 ) {
   if (info.menuItemId === "export_to_joplin") {
+    console.debug("[Joplin Export] Export via context menu.");
     await getAndProcessMessages(tab, {});
   }
 }
@@ -32,6 +42,7 @@ async function handleHotkey(command: string) {
   // Called if hotkey is pressed.
 
   if (command === "export_to_joplin") {
+    console.debug("[Joplin Export] Export via hotkey.");
     // Only the active tab is queried. So the array contains always exactly one element.
     const [activeTab] = await messenger.tabs.query({
       active: true,
@@ -73,7 +84,7 @@ function renderString(inputString: string, context: { [key: string]: any }) {
 }
 
 //////////////////////////////////////////////////
-// Export by menu button
+// Main export function
 //////////////////////////////////////////////////
 
 async function getAndProcessMessages(tab: { id: number }, info: any) {
@@ -93,12 +104,15 @@ async function getAndProcessMessages(tab: { id: number }, info: any) {
     const mailHeaders = await browser.messageDisplay.getDisplayedMessages(
       tab.id
     );
+    console.debug(
+      `[Joplin Export] Got ${mailHeaders.length} emails at tab ${tab.id}.`
+    );
 
     // Process the mails and check for success.
     const results = await Promise.all(mailHeaders.map(processMail));
     for (const error of results) {
       if (error) {
-        console.error(error);
+        console.error(`[Joplin Export] ${error}`);
         success = false;
       }
     }
@@ -136,7 +150,7 @@ async function processMail(mailHeader: any) {
   // Mail content
   //////////////////////////////////////////////////
 
-  // https://webextension-api.thunderbird.net/en/91/messages.html#messages-messageheader
+  // https://webextension-api.thunderbird.net/en/latest/messages.html#messages-messageheader
   if (!mailHeader) {
     return "Mail header is empty";
   }
@@ -228,15 +242,15 @@ async function processMail(mailHeader: any) {
     // If the preferred content type doesn't contain data, fall back to the other content type.
     const contentType = await getSetting("joplinNoteFormat");
     if ((contentType === "text/html" && mailBodyHtml) || !mailBodyPlain) {
-      console.log("Sending complete email in HTML format.");
+      console.log("[Joplin Export] Sending complete email in HTML format.");
       data["body_html"] = mailBodyHtml;
     }
     if ((contentType === "text/plain" && mailBodyPlain) || !mailBodyHtml) {
-      console.log("Sending complete email in plain format.");
+      console.log("[Joplin Export] Sending complete email in plain format.");
       data["body"] = mailBodyPlain;
     }
   } else {
-    console.log("Sending selection in plain format.");
+    console.log("[Joplin Export] Sending selection in plain format.");
     data["body"] = selectedText;
   }
 
@@ -298,7 +312,9 @@ async function processMail(mailHeader: any) {
     url = await generateUrl("search", [`query=${strippedTag}`, "type=tag"]);
     response = await fetch(url);
     if (!response.ok) {
-      console.warn(`Search for tag failed: ${await response.text()}`);
+      console.warn(
+        `[Joplin Export] Search for tag failed: ${await response.text()}`
+      );
       continue;
     }
     const searchResult = await response.json();
@@ -314,7 +330,9 @@ async function processMail(mailHeader: any) {
         body: JSON.stringify({ title: strippedTag }),
       });
       if (!response.ok) {
-        console.warn(`Failed to create tag: ${await response.text()}`);
+        console.warn(
+          `[Joplin Export] Failed to create tag: ${await response.text()}`
+        );
         continue;
       }
       const tagInfo = await response.json();
@@ -327,7 +345,7 @@ async function processMail(mailHeader: any) {
         .map((e: { id: string; title: string }) => e.title)
         .join(", ");
       console.warn(
-        `Too many matching tags for "${strippedTag}": ${matchingTagsString}`
+        `[Joplin Export] Too many matching tags for "${strippedTag}": ${matchingTagsString}`
       );
       continue;
     }
@@ -340,7 +358,9 @@ async function processMail(mailHeader: any) {
       body: JSON.stringify({ id: noteInfo["id"] }),
     });
     if (!response.ok) {
-      console.warn(`Failed to attach tag to note: ${await response.text()}`);
+      console.warn(
+        `[Joplin Export] Failed to attach tag to note: ${await response.text()}`
+      );
       continue; // not necessary, but added in case of a future refactoring
     }
   }
@@ -374,7 +394,9 @@ async function processMail(mailHeader: any) {
         body: formData,
       });
       if (!response.ok) {
-        console.warn(`Failed to create resource: ${await response.text()}`);
+        console.warn(
+          `[Joplin Export] Failed to create resource: ${await response.text()}`
+        );
         continue;
       }
       const resourceInfo = await response.json();
@@ -390,7 +412,7 @@ async function processMail(mailHeader: any) {
     });
     if (!response.ok) {
       console.warn(
-        `Failed to attach resource to note: ${await response.text()}`
+        `[Joplin Export] Failed to attach resource to note: ${await response.text()}`
       );
     }
   }
@@ -398,7 +420,7 @@ async function processMail(mailHeader: any) {
 }
 
 // Three ways to export notes: by menu button, hotkey or context menu.
-browser.browserAction.onClicked.addListener(getAndProcessMessages);
+browser.browserAction.onClicked.addListener(handleMenuButton);
 messenger.commands.onCommand.addListener(handleHotkey);
 browser.menus.onClicked.addListener(handleContextMenu);
 
@@ -407,6 +429,7 @@ export {
   getAndProcessMessages,
   handleContextMenu,
   handleHotkey,
+  handleMenuButton,
   onlyWhitespace,
   processMail,
   renderString,

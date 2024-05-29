@@ -12,6 +12,7 @@ import {
   getAndProcessMessages,
   handleContextMenu,
   handleHotkey,
+  handleMenuButton,
   onlyWhitespace,
   processMail,
   renderString,
@@ -273,6 +274,22 @@ describe("handle button / hotkey / context menu", () => {
       });
     }
   );
+
+  test("export by menu button", async () => {
+    messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
+    browser.messageDisplay.getDisplayedMessages.mockReturnValueOnce([
+      { id: 1 },
+    ]);
+
+    await handleMenuButton({ id: 1 }, { menuItemId: "export_to_joplin" });
+
+    expect(requests.length).toBe(1);
+    expectConsole({
+      log: 1,
+      warn: 0,
+      error: 0,
+    });
+  });
 
   test("export by hotkey", async () => {
     messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
