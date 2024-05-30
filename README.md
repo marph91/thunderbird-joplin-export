@@ -99,6 +99,10 @@ What to do when the export failed?
 
 ## Changelog
 
+### 0.0.7
+
+- Bugfix: Make export working again when mail body is not displayed (<https://github.com/marph91/thunderbird-joplin-export/pull/33>).
+
 ### 0.0.6
 
 - Add `author` and `user_created_date` metadata.

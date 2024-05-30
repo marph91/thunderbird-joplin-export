@@ -6,3 +6,19 @@
 4. Submit the add-on at <https://addons.thunderbird.net/de/developers/addon/joplin-export/versions/submit/>.
 
 NB: [List of valid Thunderbird versions](https://addons.thunderbird.net/en-US/thunderbird/pages/appversions/)
+
+## How to test a release
+
+The automated tests should be successful. Additionally, the following cases should be tested manually:
+
+Export via:
+
+- Menu button
+- Context menu
+- Hotkey
+
+Tabs:
+
+- Mail tab with mail body
+- Mail tab without mail body
+- Mail in a separate tab
