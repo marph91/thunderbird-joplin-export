@@ -195,9 +195,9 @@ describe("handle button / hotkey / context menu", () => {
 
   test("invalid API token", async () => {
     await browser.storage.local.set({ joplinToken: "invalidToken" });
-    browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
-      { id: 0 },
-    ]);
+    browser.mailTabs.getSelectedMessages.mockResolvedValueOnce({
+      messages: [{ id: 0 }],
+    });
     await getAndProcessMessages({ id: 0 }, {});
 
     expect(browser.notifications.icon).toBe("../images/logo_96_red.png");
@@ -236,9 +236,9 @@ describe("handle button / hotkey / context menu", () => {
 
       // "{ id: 0 }" yields a successful export.
       // "null" triggers the error "Mail header is empty".
-      browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce(
-        exportSuccessful ? [{ id: 0 }] : [null]
-      );
+      browser.mailTabs.getSelectedMessages.mockResolvedValueOnce({
+        messages: exportSuccessful ? [{ id: 0 }] : [null],
+      });
 
       await getAndProcessMessages({ id: 0 }, {});
 
@@ -277,9 +277,9 @@ describe("handle button / hotkey / context menu", () => {
 
   test("export by menu button", async () => {
     messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
-    browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
-      { id: 1 },
-    ]);
+    browser.mailTabs.getSelectedMessages.mockResolvedValueOnce({
+      messages: [{ id: 1 }],
+    });
 
     await handleMenuButton({ id: 1 }, { menuItemId: "export_to_joplin" });
 
@@ -293,9 +293,9 @@ describe("handle button / hotkey / context menu", () => {
 
   test("export by hotkey", async () => {
     messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
-    browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
-      { id: 1 },
-    ]);
+    browser.mailTabs.getSelectedMessages.mockResolvedValueOnce({
+      messages: [{ id: 1 }],
+    });
 
     await handleHotkey("export_to_joplin");
 
@@ -309,9 +309,9 @@ describe("handle button / hotkey / context menu", () => {
 
   test("export by context menu", async () => {
     messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
-    browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
-      { id: 1 },
-    ]);
+    browser.mailTabs.getSelectedMessages.mockResolvedValueOnce({
+      messages: [{ id: 1 }],
+    });
 
     await handleContextMenu({ menuItemId: "export_to_joplin" }, { id: 1 });
 
@@ -343,27 +343,7 @@ describe("handle displayed and selected mails", () => {
 
   test("no selected mail, one displayed mail", async () => {
     messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
-    browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
-      { id: 1 },
-    ]);
-
-    await getAndProcessMessages({ id: 1 }, {});
-
-    expect(requests.length).toBe(1);
-    expectConsole({
-      log: 1,
-      warn: 0,
-      error: 0,
-    });
-  });
-
-  test("error at selected mail, one displayed mail", async () => {
-    messenger.tabs.query.mockResolvedValueOnce([{ id: 1 }]);
-    // This error gets thrown when querying the selected messages at a tab
-    // where are no messages selected.
-    browser.mailTabs.getSelectedMessages.mockImplementation(() => {
-      throw new Error();
-    });
+    browser.tabs.get.mockResolvedValueOnce({ type: "messageDisplay" });
     browser.messageDisplay.getDisplayedMessages.mockResolvedValueOnce([
       { id: 1 },
     ]);

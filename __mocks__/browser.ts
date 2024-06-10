@@ -76,6 +76,10 @@ export const browser = {
   // Added by experiments:
   // https://webextension-api.thunderbird.net/en/91/how-to/experiments.html
   helper: { getSelectedText: jest.fn(async () => "") },
+  // https://webextension-api.thunderbird.net/en/stable/tabs.html#get-tabid
+  tabs: {
+    get: jest.fn(async (_tabId) => <any>{ type: "mail" }),
+  },
 };
 
 export const messenger = {
