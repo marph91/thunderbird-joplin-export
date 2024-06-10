@@ -140,13 +140,23 @@ async function getAndProcessMessages(tab: { id: number }, info: any) {
   }
 }
 
+async function getSelectedMessagesUnpaginated(tabId: number) {
+  let page = await browser.mailTabs.getSelectedMessages(tabId);
+  let messages = page.messages;
+
+  while (page.id) {
+    page = await messenger.messages.continueList(page.id);
+    messages.push(...page.messages);
+  }
+  return messages;
+}
+
 async function getMessages(tabId: number) {
   const tab = await browser.tabs.get(tabId);
   let messages;
   switch (tab.type) {
     case "mail":
-      const messageList = await browser.mailTabs.getSelectedMessages(tabId);
-      messages = messageList.messages;
+      messages = await getSelectedMessagesUnpaginated(tabId);
       break;
     case "messageDisplay":
       messages = await browser.messageDisplay.getDisplayedMessages(tabId);

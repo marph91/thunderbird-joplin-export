@@ -35,7 +35,9 @@ export const browser = {
     },
   },
   mailTabs: {
-    getSelectedMessages: jest.fn(async (_tabId) => <any>{ messages: [] }),
+    getSelectedMessages: jest.fn(
+      async (_tabId) => <any>{ messages: [], id: undefined }
+    ),
   },
   menus: {
     create: jest.fn(),
@@ -87,6 +89,9 @@ export const messenger = {
     onCommand: {
       addListener: jest.fn(),
     },
+  },
+  messages: {
+    continueList: jest.fn(async (_id) => <any>{ messages: [], id: undefined }),
   },
   tabs: {
     query: jest.fn(),
