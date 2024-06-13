@@ -140,25 +140,32 @@ async function getAndProcessMessages(tab: { id: number }, info: any) {
   }
 }
 
-async function getMessages(tabId: number) {
-  let messages = [];
-  try {
-    // Try to get selected messages when in the main mail tab.
-    const messageList = await browser.mailTabs.getSelectedMessages(tabId);
-    messages = messageList.messages;
-    if (messages.length === 0) {
-      console.debug(
-        "[Joplin Export] No selected messages. Try to get displayed messages."
-      );
-      messages = await browser.messageDisplay.getDisplayedMessages(tabId);
-    }
-  } catch (error: any) {
-    // Try to get a displayed message when in message tab.
-    console.debug(
-      `[Joplin Export] Error at selected messages (${error.message}). Try to get displayed messages.`
-    );
-    messages = await browser.messageDisplay.getDisplayedMessages(tabId);
+async function getSelectedMessagesUnpaginated(tabId: number) {
+  let page = await browser.mailTabs.getSelectedMessages(tabId);
+  let messages = page.messages;
+
+  while (page.id) {
+    page = await messenger.messages.continueList(page.id);
+    messages.push(...page.messages);
   }
+  return messages;
+}
+
+async function getMessages(tabId: number) {
+  const tab = await browser.tabs.get(tabId);
+  let messages;
+  switch (tab.type) {
+    case "mail":
+      messages = await getSelectedMessagesUnpaginated(tabId);
+      break;
+    case "messageDisplay":
+      messages = await browser.messageDisplay.getDisplayedMessages(tabId);
+      break;
+    default:
+      console.debug(`Unsupported tab type ${tab.type}.`);
+      messages = [];
+  }
+
   const logMessage = `[Joplin Export] Got ${messages.length} emails at tab ${tabId}.`;
   if (messages.length > 0) {
     console.debug(logMessage);

@@ -35,7 +35,9 @@ export const browser = {
     },
   },
   mailTabs: {
-    getSelectedMessages: jest.fn(async (_tabId) => <any>{ messages: [] }),
+    getSelectedMessages: jest.fn(
+      async (_tabId) => <any>{ messages: [], id: undefined }
+    ),
   },
   menus: {
     create: jest.fn(),
@@ -76,6 +78,10 @@ export const browser = {
   // Added by experiments:
   // https://webextension-api.thunderbird.net/en/91/how-to/experiments.html
   helper: { getSelectedText: jest.fn(async () => "") },
+  // https://webextension-api.thunderbird.net/en/stable/tabs.html#get-tabid
+  tabs: {
+    get: jest.fn(async (_tabId) => <any>{ type: "mail" }),
+  },
 };
 
 export const messenger = {
@@ -83,6 +89,9 @@ export const messenger = {
     onCommand: {
       addListener: jest.fn(),
     },
+  },
+  messages: {
+    continueList: jest.fn(async (_id) => <any>{ messages: [], id: undefined }),
   },
   tabs: {
     query: jest.fn(),
