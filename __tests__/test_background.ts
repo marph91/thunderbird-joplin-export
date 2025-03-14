@@ -1,5 +1,4 @@
 import express from "express";
-import fetch from "node-fetch";
 
 // TODO: Navigating to __mocks__ shouldn't be needed.
 import { browser, messenger } from "../__mocks__/browser";
@@ -17,10 +16,6 @@ import {
   processMail,
   renderString,
 } from "../src/background";
-
-// Replace the javascript fetch with nodejs fetch.
-// @ts-ignore
-global.fetch = jest.fn(fetch);
 
 // Simple test server. Will receive the request that should go to Joplin.
 let app = express();
