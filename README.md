@@ -99,6 +99,10 @@ What to do when the export failed?
 
 ## Changelog
 
+### 0.0.9
+
+- Add support for Thunderbird up to version 138 (<https://github.com/marph91/thunderbird-joplin-export/issues/38>).
+
 ### 0.0.8
 
 - Bugfix: Make export working again when mail body is not displayed (<https://github.com/marph91/thunderbird-joplin-export/pull/33>).

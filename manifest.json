@@ -2,14 +2,14 @@
   "manifest_version": 2,
   "name": "Joplin Export",
   "description": "__MSG_extensionDescription__",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "author": "Martin Dörfelt",
   "homepage_url": "https://github.com/marph91/thunderbird-joplin-export",
   "applications": {
     "gecko": {
       "id": "joplin-export@martin.doerfelt",
       "strict_min_version": "88.0",
-      "strict_max_version": "128.*"
+      "strict_max_version": "138.*"
     }
   },
   "background": {
