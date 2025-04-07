@@ -93,6 +93,12 @@ browser.scripting.messageDisplay.registerScripts([{
 }]);
 
 async function getSelection(tab: { id: number }, retry: boolean = true) {
+  // Abort, if the tab is not displaying a message.
+  let message = await browser.messageDisplay.getDisplayedMessage(tab.id);
+  if (!message) {
+    return "";
+  }
+
   try {
     // Await the call here, so we can catch connection errors and retry.
     return await browser.tabs.sendMessage(tab.id, {
