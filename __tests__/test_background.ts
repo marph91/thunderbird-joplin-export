@@ -117,7 +117,7 @@ beforeAll(() => {
             .status(500)
             .send(
               "Tag shouldn't start or end with whitespaces. " +
-                "They get stripped by Joplin, which can lead to inconsistent behaviour."
+              "They get stripped by Joplin, which can lead to inconsistent behaviour."
             );
         }
         returnData = { items: [] };
@@ -369,7 +369,7 @@ describe("handle displayed and selected mails", () => {
 
 describe("process mail", () => {
   test("empty header", async () => {
-    const result = await processMail(undefined);
+    const result = await processMail(undefined, { id: 0 });
     expect(result).toBe("Mail header is empty");
 
     expectConsole({
@@ -383,7 +383,7 @@ describe("process mail", () => {
     browser.messages.getFull.mockResolvedValueOnce(undefined);
 
     // Arbitrary id, since we mock the mail anyway.
-    const result = await processMail({ id: 0 });
+    const result = await processMail({ id: 0 }, { id: 0 });
     expect(result).toBe("Mail body is empty");
 
     expectConsole({
@@ -396,7 +396,7 @@ describe("process mail", () => {
   test("empty body", async () => {
     browser.messages.getFull.mockResolvedValueOnce({});
 
-    const result = await processMail({ id: 0 });
+    const result = await processMail({ id: 0 }, { id: 0 });
     expect(result).toBe("Mail body is empty");
 
     expectConsole({
@@ -427,13 +427,18 @@ describe("process mail", () => {
 
     browser.helper.getSelectedText.mockResolvedValueOnce(body);
 
-    const result = await processMail({
-      id: 1,
-      subject: subject,
-      author: author,
-      date: date,
-      recipients: recipients,
-    });
+    const result = await processMail(
+      {
+        id: 1,
+        subject: subject,
+        author: author,
+        date: date,
+        recipients: recipients,
+      },
+      {
+        id: 0,
+      }
+    );
 
     expect(result).toBe(null);
     // 1 request to create the note.
@@ -495,12 +500,17 @@ describe("process mail", () => {
         ],
       });
 
-      const result = await processMail({
-        id: 0,
-        subject: subject,
-        author: author,
-        date: date,
-      });
+      const result = await processMail(
+        {
+          id: 0,
+          subject: subject,
+          author: author,
+          date: date,
+        },
+        {
+          id: 0,
+        }
+      );
 
       if (!resultFormat) {
         expect(result).toBe("Mail body is empty");
@@ -544,12 +554,17 @@ describe("process mail", () => {
 
     browser.helper.getSelectedText.mockResolvedValueOnce(body);
 
-    const result = await processMail({
-      id: 0,
-      subject: subject,
-      author: author,
-      date: date,
-    });
+    const result = await processMail(
+      {
+        id: 0,
+        subject: subject,
+        author: author,
+        date: date,
+      },
+      {
+        id: 0,
+      }
+    );
     expect(result).toBe(null);
 
     expect(requests.length).toBe(1);
@@ -572,7 +587,7 @@ describe("process mail", () => {
   test("export as todo", async () => {
     await browser.storage.local.set({ joplinExportAsTodo: true });
 
-    const result = await processMail({ id: 0 });
+    const result = await processMail({ id: 0 }, { id: 0 });
 
     expect(result).toBe(null);
     expect(requests.length).toBe(1);
@@ -595,11 +610,16 @@ describe("process mail", () => {
       const author = "author name";
       await browser.storage.local.set({ joplinSubjectTrimRegex: regexString });
 
-      const result = await processMail({
-        id: 1,
-        subject: inputSubject,
-        author: author,
-      });
+      const result = await processMail(
+        {
+          id: 1,
+          subject: inputSubject,
+          author: author,
+        },
+        {
+          id: 0,
+        }
+      );
 
       expect(result).toBe(null);
       expect(requests.length).toBe(1);
@@ -625,11 +645,16 @@ describe("process mail", () => {
       const subject = "some subject";
       await browser.storage.local.set({ joplinAuthorTrimRegex: regexString });
 
-      const result = await processMail({
-        id: 1,
-        subject: subject,
-        author: inputAuthor,
-      });
+      const result = await processMail(
+        {
+          id: 1,
+          subject: subject,
+          author: inputAuthor,
+        },
+        {
+          id: 0,
+        }
+      );
 
       expect(result).toBe(null);
       expect(requests.length).toBe(1);
@@ -659,12 +684,17 @@ describe("process mail", () => {
         joplinDateFormat: dateFormat,
       });
 
-      const result = await processMail({
-        id: 1,
-        subject: subject,
-        author: author,
-        date: inputDate,
-      });
+      const result = await processMail(
+        {
+          id: 1,
+          subject: subject,
+          author: author,
+          date: inputDate,
+        },
+        {
+          id: 0,
+        }
+      );
 
       expect(result).toBe(null);
       expect(requests.length).toBe(1);
@@ -703,15 +733,15 @@ describe("process tag", () => {
         joplinNoteTagsFromEmail: includeEmailTags,
       });
 
-      const result = await processMail({ id: 0, tags: emailTags });
+      const result = await processMail({ id: 0, tags: emailTags }, { id: 0 });
       expect(result).toBe(null);
 
       // 1 request to create the note.
       // 3 requests per tag: get tags, create tag, attach tag to note
       expect(requests.length).toBe(
         1 +
-          3 * Number(customTags != "") +
-          3 * Number(includeEmailTags && emailTags.length > 0)
+        3 * Number(customTags != "") +
+        3 * Number(includeEmailTags && emailTags.length > 0)
       );
 
       expectConsole({
@@ -725,7 +755,7 @@ describe("process tag", () => {
   test("tag already existent", async () => {
     await browser.storage.local.set({ joplinNoteTags: "existentTag" });
 
-    const result = await processMail({ id: 0, tags: [] });
+    const result = await processMail({ id: 0, tags: [] }, { id: 0 });
     expect(result).toBe(null);
 
     // 1 request to create the note.
@@ -743,7 +773,7 @@ describe("process tag", () => {
   test("too many tags existent", async () => {
     await browser.storage.local.set({ joplinNoteTags: "multipleTags" });
 
-    const result = await processMail({ id: 0, tags: [] });
+    const result = await processMail({ id: 0, tags: [] }, { id: 0 });
     expect(result).toBe(null);
 
     // 1 request to create the note.
@@ -789,7 +819,7 @@ describe("process attachment", () => {
       );
       browser.messages.getAttachmentFile.mockResolvedValue(attachments);
 
-      const result = await processMail({ id: 0 });
+      const result = await processMail({ id: 0 }, { id: 0 });
       expect(result).toBe(null);
 
       // 1 request to create the note.
