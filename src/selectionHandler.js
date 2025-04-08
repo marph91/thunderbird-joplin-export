@@ -5,14 +5,14 @@
  */
 
 async function getSelection() {
-    let selection = window.getSelection();
-    return selection.toString();
+  let selection = window.getSelection();
+  return selection.toString();
 }
 
 messenger.runtime.onMessage.addListener((message, sender) => {
-    switch (message.action) {
-        case "getSelection":
-            return getSelection();
-    }
-    return false;
+  switch (message.action) {
+    case "getSelection":
+      return getSelection();
+  }
+  return false;
 });
