@@ -19,8 +19,9 @@ Export via:
 - Context menu
 - Hotkey
 
-Tabs:
+Tabs/windows:
 
 - Mail tab with mail body
 - Mail tab without mail body
 - Mail in a separate tab
+- Mail in a separate window

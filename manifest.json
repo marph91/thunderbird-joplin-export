@@ -12,13 +12,12 @@
     }
   },
   "background": {
-    "scripts": [
-      "dist/background.js"
-    ]
+    "scripts": ["dist/background.js"]
   },
   "browser_action": {
     "default_title": "Joplin Export",
-    "default_icon": "images/logo_96_blue.png"
+    "default_icon": "images/logo_96_blue.png",
+    "default_windows": ["normal", "messageDisplay"]
   },
   "commands": {
     "export_to_joplin": {
