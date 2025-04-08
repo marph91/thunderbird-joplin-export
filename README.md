@@ -99,6 +99,11 @@ What to do when the export failed?
 
 ## Changelog
 
+### 0.0.10
+
+- Become a pure WebExtension (<https://github.com/marph91/thunderbird-joplin-export/pull/40>).
+- Add export button to separate message display windows.
+
 ### 0.0.9
 
 - Add support for Thunderbird up to version 138 (<https://github.com/marph91/thunderbird-joplin-export/issues/38>).
