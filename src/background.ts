@@ -84,6 +84,42 @@ function renderString(inputString: string, context: { [key: string]: any }) {
 }
 
 //////////////////////////////////////////////////
+// Register content script for selections
+//////////////////////////////////////////////////
+
+browser.scripting.messageDisplay.registerScripts([{
+  id: "selectionHandler",
+  js: ["dist/selectionHandler.js"]
+}]);
+
+async function getSelection(tab: { id: number }, retry: boolean = true) {
+  // Abort, if the tab is not displaying a message.
+  let message = await browser.messageDisplay.getDisplayedMessage(tab.id);
+  if (!message) {
+    return "";
+  }
+
+  try {
+    // Await the call here, so we can catch connection errors and retry.
+    return await browser.tabs.sendMessage(tab.id, {
+      action: "getSelection"
+    });
+  } catch { }
+
+  if (retry) {
+    // Script was not loaded yet, which could happen if the add-on was loaded
+    // while the message was already open.
+    await messenger.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ["dist/selectionHandler.js"]
+    });
+    // We only retry once.
+    return getSelection(tab, false);
+  }
+  return "";
+}
+
+//////////////////////////////////////////////////
 // Main export function
 //////////////////////////////////////////////////
 
@@ -104,7 +140,7 @@ async function getAndProcessMessages(tab: { id: number }, info: any) {
     const messages = await getMessages(tab.id);
 
     // Process the mails and check for success.
-    const results = await Promise.all(messages.map(processMail));
+    const results = await Promise.all(messages.map((mailHeader: any) => processMail(mailHeader, tab)));
     for (const error of results) {
       if (error) {
         console.error(`[Joplin Export] ${error}`);
@@ -176,7 +212,7 @@ async function getMessages(tabId: number) {
   return messages;
 }
 
-async function processMail(mailHeader: any) {
+async function processMail(mailHeader: any, tab: { id: number }) {
   //////////////////////////////////////////////////
   // Mail content
   //////////////////////////////////////////////////
@@ -259,7 +295,7 @@ async function processMail(mailHeader: any) {
   }
 
   // If there is selected text, prefer it over the full email.
-  const selectedText = await browser.helper.getSelectedText();
+  const selectedText = await getSelection(tab);
   if (onlyWhitespace(selectedText)) {
     const mailObject = await browser.messages.getFull(mailHeader.id);
 
