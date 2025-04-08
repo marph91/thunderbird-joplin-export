@@ -117,7 +117,7 @@ beforeAll(() => {
             .status(500)
             .send(
               "Tag shouldn't start or end with whitespaces. " +
-              "They get stripped by Joplin, which can lead to inconsistent behaviour."
+                "They get stripped by Joplin, which can lead to inconsistent behaviour."
             );
         }
         returnData = { items: [] };
@@ -425,8 +425,6 @@ describe("process mail", () => {
     `,
     });
 
-    browser.helper.getSelectedText.mockResolvedValueOnce(body);
-
     const result = await processMail(
       {
         id: 1,
@@ -552,7 +550,8 @@ describe("process mail", () => {
     const date = new Date(Date.now());
     const body = "test body";
 
-    browser.helper.getSelectedText.mockResolvedValueOnce(body);
+    browser.messageDisplay.getDisplayedMessage.mockResolvedValueOnce({ id: 1 });
+    browser.tabs.sendMessage.mockResolvedValueOnce(body);
 
     const result = await processMail(
       {
@@ -740,8 +739,8 @@ describe("process tag", () => {
       // 3 requests per tag: get tags, create tag, attach tag to note
       expect(requests.length).toBe(
         1 +
-        3 * Number(customTags != "") +
-        3 * Number(includeEmailTags && emailTags.length > 0)
+          3 * Number(customTags != "") +
+          3 * Number(includeEmailTags && emailTags.length > 0)
       );
 
       expectConsole({
